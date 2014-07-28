@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="js/components/platform/platform.js"></script>
+  <link rel="import" href="js/components/core-list/core-list.html">
+</head>
+<body>
+  <!-- render data set -->
+  <polymer-element name="my-test-element">
+    <core-list data="{{data}}">
+    <template>
+      <div on-tap="{{quoteClicked}}">
+        <h3>{{quote}}</h3>
+        - <em>{{attribution}}</em>
+      </div>
+    </template>
+    </core-list>
+    <script>
+      Polymer("my-test-element",{
+        quoteClicked: function() {
+          alert('Quote clicked!');
+        },
+        ready: function(){
+          var data = [];
+          var a = {
+            attribution: 'Plautus', 
+            quote: 'Let deeds match words.'
+          };
+          data.push(a);
+
+          var b = { 
+            attribution: 'Groucho Marx',
+            quote: 'Time flies like an arrow. Fruit flies like a banana.'
+          };
+          data.push(b);
+          this.data = data;
+        }
+      });
+    </script>
+  </polymer-element>
+  <my-test-element></my-test-element>
+</body>
+</html>
