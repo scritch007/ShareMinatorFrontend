@@ -34,9 +34,13 @@
 	top:5%;
 	background-color: orange;
 }
-/*#browsing{
-	width:600px;
+@media only screen and (min-width:48em) {
+	#browsing{
+		margin-right:5%;
+		margin-left:5%;
+	}
 }
+/*
 .files_item{
 	height: 40px;
 	width: 600px;

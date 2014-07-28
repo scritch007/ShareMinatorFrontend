@@ -5,6 +5,8 @@ var displayTheme = null;
 var mainWindow = null;
 
 var queryString = {};
+var hasFlash = false;
+var copyClient = null;
 
 function getQueryString() {
   var result = {}, queryString = location.search.slice(1),
@@ -22,12 +24,21 @@ function setPopup(popup){
 	if (undefined != popup.focusElement){
 		popup.focusElement.focus();
 	}
+	if (undefined != popup.attached){
+		popup.attached();
+	}
 }
 
 function init(){
 	queryString = getQueryString();
 	displayTheme = new WualaDisplay();
 	mainWindow = document.getElementById("window_popup_id");
+	ZeroClipboard.config( { swfPath: "bower_components/zeroclipboard/dist/ZeroClipboard.swf" } );
+
+	hasFlash = !ZeroClipboard.isFlashUnusable();
+	if (hasFlash){
+		copyClient = new ZeroClipboard();
+	}
 	$.getJSON("auths", function(result){
 		HandleAuthsResult(result);
 		checkAuth(function(loggedUser){
@@ -233,17 +244,53 @@ function downloadPopup(path, download_link){
 	var display_content_div = document.createElement("div");
 	var url_div = document.createElement("div");
 	url_div.className = "input-control text";
-	var download_link_input = document.createElement("input");
-	download_link_input.type = "text";
 	var dlink = location.protocol + "//" + location.host + "/downloads/" + download_link;
-	download_link_input.value = dlink;
-	url_div.appendChild(download_link_input);
+
+	if (!hasFlash)
+	{
+		var download_link_input = document.createElement("input");
+		download_link_input.type = "text";
+
+		download_link_input.value = dlink;
+		url_div.appendChild(download_link_input);
+	}else{
+
+		var copyButton = document.createElement("a");
+		copyButton.className = "button w-download";
+		copyButton.id = "moncopybouton";
+		var i = document.createElement("i");
+		i.className = "icon-copy";
+		copyButton.appendChild(i);
+		url_div.appendChild(copyButton);
+		copyButton.onclick = function(){
+			console.log("Button was clicked");
+		}
+		window_div.close = function(){
+			Logger.DEBUG("Deleting copy object");
+		}.bind(this);
+		function listener(e){
+			document.removeEventListener("DOMNodeInserted", listener);
+			var button = e.target.querySelector("#moncopybouton")
+			copyClient.clip(button);
+			copyClient.setText(dlink);
+			copyClient.on("ready", function(){
+				console.log("copyClient ready");
+			});
+			copyClient.on("copy", function(){
+
+				console.log("Copy");
+			});
+			copyClient.on("after-copy", function(){
+				console.log("copied to clipboard");
+			});
+		}
+		document.addEventListener("DOMNodeInserted", listener);
+	}
 
 	var downloadButton = document.createElement("a");
-	downloadButton.className = "button small w-download";
+	downloadButton.className = "button w-download";
 	var i = document.createElement("i");
 	i.className = "icon-arrow-down";
-	downloadButton.appendChild(i);
 	downloadButton.appendChild(i);
 	url_div.appendChild(downloadButton);
 	downloadButton.onclick = function(){
@@ -453,6 +500,9 @@ function Caption(text){
 	caption_close_button.appendChild(i);
 	caption_div.appendChild(caption_close_button);
 	caption_close_button.onclick = function(){
+		if (caption_div.parentNode.close){
+			caption_div.parentNode.close();
+		}
 		caption_div.parentNode.parentNode.removeChild(caption_div.parentNode);
 	}
 	return caption_div;

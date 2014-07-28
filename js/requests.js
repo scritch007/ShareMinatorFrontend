@@ -16,8 +16,12 @@ function sendRequest(obj){
         processData: false,
         success: function(results) {
 			obj.onSuccess(results);
+
         },
         error: function(request, status, error){
+        	if (401 == request.status){
+        		user = null;
+        	}
         	if ((null != obj.onError) && (undefined != obj.onError)){
         		obj.onError(request, status, error);
         	}

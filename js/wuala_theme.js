@@ -216,14 +216,21 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 
 	//Size
 	th = document.createElement("td");
-	th.innerHTML = element.size;
+	th.innerHTML =  bytesToSize(element.size);
 
 	th.className = "hide-for-small";
 	tr.appendChild(th);
 
 	//Mdate
 	th = document.createElement("td");
-	th.innerHTML = element.mDate;
+
+    if ("-" == element.mDate){
+      element.mDateStr = "";
+    }else{
+      var temp = new Date(element.mDate * 1000)
+      element.mDateStr = temp.toDateString();
+    }
+	th.innerHTML = element.mDateStr;
 	th.className = "hide-for-small";
 	tr.appendChild(th);
 
@@ -253,13 +260,13 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 		var strong = document.createElement("strong");
 		strong.innerHTML = "Size";
 		div.appendChild(strong);
-		div.innerHTML += ": " + element.size;
+		div.innerHTML += ": " + bytesToSize(element.size);
 		td.appendChild(div);
 		div = document.createElement("div");
 		strong = document.createElement("strong");
 		strong.innerHTML = "Change";
 		div.appendChild(strong);
-		div.innerHTML += ": " + element.mDate;
+		div.innerHTML += ": " + element.mDateStr;
 		td.appendChild(div);
 		div = document.createElement("div");
 		strong = document.createElement("strong");
