@@ -1550,11 +1550,13 @@ table tbody tr td {
     text-align: left;
     padding: 0 0 0 10px;
 }
-}@media only screen and (min-width:48em) {
+}
+@media only screen and (min-width:48em) {
     .mob {
     display: none;
 }
-}@media only screen and (min-width:1024px) {
+}
+@media only screen and (min-width:1024px) {
     tbody>tr: hover {
     background: #fcdddb;
     cursor: pointer;
