@@ -143,9 +143,9 @@ function display(result, add_share_callback){
 				//Check if we've got a sharelink save
 				sendCommand({
 					data : {
-						name: "share_link.get",
+						name: "share_link.list",
 						share_link:{
-							get : {
+							list : {
 								path: this.element_path
 							}
 						}
@@ -302,39 +302,27 @@ function downloadPopup(path, download_link){
 	return window_div;
 }
 
-function sharePopup(element, result){
-	var share_link = null;
-	if (null != result){
-		share_link = result.share_link.get.result;
-	}
-	var window_div = document.createElement("div");
-	window_div.className = "window shadow";
-	window_div.id = "share_link_popup";
-	var caption_div = Caption("Share " + element.name);
-	//End of Caption defintion
-	window_div.appendChild(caption_div);
-	var content_div = document.createElement("div");
-	content_div.className = "content";
-	content_div.id = "share_link_content";
-
+function createShareLinkDisplay(share_link){
+	var current_link = document.createElement("div");
+	current_link.share_link = share_link;
 	var keyDiv = document.createElement("div");
 	var keyLabel = document.createElement("div");
 	keyLabel.innerHTML = "ShareLinkKey";
 	keyDiv.appendChild(keyLabel);
 	var keyInput = document.createElement("input");
+	current_link.keyInput = keyInput;
 	keyInput.id = "sharelinkkey";
 	keyInput.type = "text";
 	keyDiv.appendChild(keyInput);
-	if (null != share_link){
-		keyInput.value = share_link.key;
-	}
-	content_div.appendChild(keyDiv);
+
+	current_link.appendChild(keyDiv);
 
 	var shareLinkTypeDiv = document.createElement("div");
 	var shareLinkTypeLabel = document.createElement("label");
 	shareLinkTypeLabel.innerHTML = "Share Link Type";
 	shareLinkTypeDiv.appendChild(shareLinkTypeLabel);
 	var shareLinkTypeSelect = document.createElement("select");
+	current_link.shareLinkTypeSelect = shareLinkTypeSelect;
 	var shareLinkType = [ "key", "authenticated", "restricted"];
 	for (var i=0; i<shareLinkType.length; i++){
 		var option = document.createElement("option");
@@ -353,7 +341,7 @@ function sharePopup(element, result){
 		}
 	}
 	shareLinkTypeDiv.appendChild(shareLinkTypeSelect);
-	content_div.appendChild(shareLinkTypeDiv);
+	current_link.appendChild(shareLinkTypeDiv);
 	var shareLinkSpecificDiv = document.createElement("div");
 	var shareLinkDivKey = document.createElement("div");
 	shareLinkDivKey.id = "share_link_key";
@@ -371,13 +359,6 @@ function sharePopup(element, result){
 	//Add the list of users added to this share link
 	var usersUl = document.createElement("ul");
 	shareLinkDivRestricted.appendChild(usersUl);
-	if (null != share_link && "restricted" == share_link.type){
-		for(var i=0; i < share_link.user_list.length; i++){
-			var userLi = document.createElement("li");
-			userLi.innerHTML = share_link.user_list[i];
-			userUl.appendChild(userLi);
-		}
-	}
 
 	//Share Restricted requires listing the users..
 	var searchTimer = null;
@@ -427,7 +408,91 @@ function sharePopup(element, result){
 	var selectedUsers = document.createElement("div");
 	shareLinkDivRestricted.appendChild(selectedUsers);
 
-	content_div.appendChild(shareLinkSpecificDiv);
+	current_link.appendChild(shareLinkSpecificDiv);
+	current_link.update = function(share_link){
+		if (share_link){
+			keyInput.value = share_link.key;
+		}else{
+			keyInput.value = "";
+		}
+		usersUl.innerHTML = "";
+		if (null != share_link && "restricted" == share_link.type){
+			for(var i=0; i < share_link.user_list.length; i++){
+				var userLi = document.createElement("li");
+				userLi.innerHTML = share_link.user_list[i];
+				usersUl.appendChild(userLi);
+			}
+		}
+	}
+	if (null != share_link){
+		current_link.update(share_link);
+	}
+	return current_link;
+}
+
+function sharePopup(element, result){
+	var share_links = [];
+	if (null != result){
+		share_links = result.share_link.list.results;
+	}
+	var window_div = document.createElement("div");
+	window_div.className = "window shadow";
+	window_div.id = "share_link_popup";
+	var caption_div = Caption("Share " + element.name);
+	//End of Caption defintion
+	window_div.appendChild(caption_div);
+	var content_div = document.createElement("div");
+	content_div.className = "content";
+	content_div.id = "share_link_content";
+	var current_link = null;
+	var current_share_link = null;
+	//if (0 != share_links.length){
+
+		var selectShareLinks = document.createElement("select");
+		content_div.appendChild(selectShareLinks);
+
+		if (0 != share_links.length){
+			current_link = share_links[0];
+		}
+		function refresh(){
+			selectShareLinks.innerHTML = "";
+			var option;
+			for(var i=0; i < share_links.length; i++){
+
+				option = document.createElement("option");
+				option.value = share_links[i].name?share_links[i].name:share_links[i].key;
+
+				option.share_link = share_links[i];
+				if (null != current_link && current_link.key == option.share_link.key){
+					option.setAttribute("selected", true);
+				}
+				option.innerHTML = option.value;
+				selectShareLinks.appendChild(option);
+			}
+			option = document.createElement("option");
+			option.value = option.innerHTML = "New Share Link";
+			if (null == current_link){
+				option.setAttribute("selected", true);
+			}
+			selectShareLinks.appendChild(option);
+
+			selectShareLinks.onchange = function(event){
+				for (var i=0; i < selectShareLinks.options.length; i++){
+					var option = selectShareLinks.options[i];
+					if (option.selected){
+						current_link = option.share_link;
+						refresh();
+						break;
+					}
+				}
+			}
+			current_share_link.update(current_link);
+		}
+	//}
+	current_share_link = createShareLinkDisplay(current_link);
+	refresh();
+
+	content_div.appendChild(current_share_link);
 	window_div.appendChild(content_div);
 	var buttonDiv = document.createElement("div");
 	buttonDiv.className = "footer";
@@ -437,7 +502,7 @@ function sharePopup(element, result){
 	ok_button.value = "Yes";
 	ok_button.className = "button primary small";
 	ok_button.onclick = function(){
-		var cmd_name = null == share_link ? "create":"update";
+		var cmd_name = null == current_share_link.share_link ? "create":"update";
 		command = {
 			name: "share_link." + cmd_name,
 			share_link: {}
@@ -445,10 +510,10 @@ function sharePopup(element, result){
 		command.share_link[cmd_name] = {
 			share_link: {
 				path: current_folder +"/" + element.name,
-				type: shareLinkTypeSelect.selectedOptions[0].value
+				type: current_share_link.shareLinkTypeSelect.selectedOptions[0].value
 			}
 		};
-		if ("restricted" == shareLinkTypeSelect.selectedOptions[0].value){
+		if ("restricted" == current_share_link.shareLinkTypeSelect.selectedOptions[0].value){
 			//Add the users that have access to this share link
 
 		}
@@ -459,7 +524,11 @@ function sharePopup(element, result){
 				onSuccess:function(result){
 					console.log(result);
 					if (0 == result.state.status){
-						keyInput.value = result.share_link.create.share_link.key;
+						if (result.name == "share_link.create"){
+							share_links.push(result.share_link.create.share_link);
+							current_link = result.share_link.create.share_link;
+						}
+						refresh();
 					}
 					//Else notify of an error...
 				}

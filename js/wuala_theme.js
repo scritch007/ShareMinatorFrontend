@@ -82,25 +82,25 @@ WualaDisplay.prototype.GetFilesListElement = function(path){
 	//Size
 	th = document.createElement("th");
 	th.innerHTML = "Size";
-	th.className = "hide-for-small browse-size";
+	th.className = "hide-for-small hide-for-medium-down browse-size";
 	tr.appendChild(th);
 
 	//Mdate
 	th = document.createElement("th");
 	th.innerHTML = "Change";
-	th.className = "hide-for-small browse-mdate";
+	th.className = "hide-for-small hide-for-medium-down browse-mdate";
 	tr.appendChild(th);
 
 	//kind
 	th = document.createElement("th");
 	th.innerHTML = "Kind";
-	th.className = "hide-for-small browse-kind";
+	th.className = "hide-for-small hide-for-medium-down browse-kind";
 	tr.appendChild(th);
 
 	//Actions
 	th = document.createElement("th");
 	th.innerHTML = "Actions";
-	th.className = "hide-for-small browse-action";
+	th.className = "hide-for-small hide-for-medium-down browse-action";
 	tr.appendChild(th);
 
 	this.tbody = document.createElement("tbody");
