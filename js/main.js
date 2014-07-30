@@ -116,7 +116,7 @@ function display(result, add_share_callback){
 			browseCB = function(path, event){
 				browse(path);
 			}.bind(element, element_path);
-		}else{
+		}//else{
 			downloadCB = function(path, event){
 				event.stopPropagation()
 				sendCommand(
@@ -136,7 +136,7 @@ function display(result, add_share_callback){
 					}
 				);
 			}.bind(element, element_path);
-		}
+		//}
 		var shareCB = null;
 		if (null != user && add_share_callback){
 			shareCB = function(){
