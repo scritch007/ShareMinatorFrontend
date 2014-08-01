@@ -8,6 +8,8 @@ var queryString = {};
 var hasFlash = false;
 var copyClient = null;
 
+var PopupClass = null;
+
 function getQueryString() {
   var result = {}, queryString = location.search.slice(1),
       re = /([^&=]+)=([^&]*)/g, m;
@@ -30,6 +32,7 @@ function setPopup(popup){
 }
 
 function init(){
+	PopupClass = BootstrapDialog;
 	queryString = getQueryString();
 	displayTheme = new WualaDisplay();
 	mainWindow = document.getElementById("window_popup_id");
@@ -109,7 +112,7 @@ function display(result, add_share_callback){
 		var browseCB = null;
 		var deleteCB = function(path, event){
 			event.stopPropagation();
-			setPopup(deletePopup(path));
+			deletePopup(path);
 		}.bind(element, element_path);
 
 		if (element.isDir){
@@ -131,7 +134,7 @@ function display(result, add_share_callback){
 						},
 						onSuccess: function(result){
 							console.log(result.browser.download_link.download_link);
-							setPopup(downloadPopup(path, result.browser.download_link.download_link.link));
+							downloadPopup(path, result.browser.download_link.download_link.link);
 						}
 					}
 				);
@@ -172,134 +175,138 @@ function display(result, add_share_callback){
 }
 
 function createFolder(){
-	//Create a popup div to enter the name of the folder to create
-	var createFolderPopup = document.createElement("div");
-	createFolderPopup.className = "window shadow";
 
+	PopupClass.show(
+	{
+		title: "Create New Folder",
+		message: function(){
+			var createFolderPopup = document.createElement("form");
+			createFolderPopup.setAttribute("role", "form");
+			createFolderPopup.id = "createFolderPopup";
 
-	var caption_div = Caption("Create New Folder");
-	createFolderPopup.appendChild(caption_div);
-	var folderNameLabel = document.createElement("label");
-	folderNameLabel.innerHTML = "Folder Name";
-	var folderNameInput = document.createElement("input");
-	folderNameInput.type = "text";
-	var nameDiv = document.createElement("div");
-	nameDiv.appendChild(folderNameLabel);
-	nameDiv.appendChild(folderNameInput);
-	createFolderPopup.appendChild(nameDiv);
+			//Folder name entry
+			var folderNameLabel = document.createElement("label");
+			folderNameLabel.innerHTML = "Folder Name";
+			folderNameLabel.setAttribute("for", "createFolderNameInput");
+			var folderNameInput = document.createElement("input");
+			folderNameInput.id = "createFolderNameInput";
+			folderNameInput.type = "text";
+			folderNameInput.setAttribute("required", true);
+			folderNameInput.className = "form-control";
+			folderNameInput.id = "createFolderNameInput";
+			folderNameInput.focus();
 
-	var buttonDiv = document.createElement("div");
-	buttonDiv.className = "footer";
-	var cancelButton = document.createElement("a");
-	cancelButton.type = "button small";
-	cancelButton.innerHTML = "Cancel";
-	cancelButton.className = "button small";
-	cancelButton.onclick = function(){
-		createFolderPopup.parentNode.removeChild(createFolderPopup);
-	}
-	buttonDiv.appendChild(cancelButton);
-	var goButton = document.createElement("a");
-	goButton.innerHTML = "Create";
-	goButton.onclick = function(){
-		goButton.disabled = true;
-		cancelButton.disabled = true;
-		path = current_folder;
-		if ("/" != path.charAt(path.length - 1)){
-			path = path + "/";
-		}
-		sendCommand(
+			var nameDiv = document.createElement("div");
+			nameDiv.className = "form-group";
+			nameDiv.appendChild(folderNameLabel);
+			nameDiv.appendChild(folderNameInput);
+			createFolderPopup.appendChild(nameDiv);
+			return createFolderPopup;
+		},
+		buttons: [
 			{
-				data: {
-					name: "browser.create_folder",
-					browser:{
-						create_folder:{
-							"path": path + folderNameInput.value
-						}
-					}
-				},
-				onSuccess: function(result){
-					browse(current_folder);
-					createFolderPopup.parentNode.removeChild(createFolderPopup);
+				label: 'Close',
+				action: function(self){
+					self.close();
 				}
+			},
+			{
+				label: 'Create',
+				action: function(self){
+					var createFolderPopup = $("#createFolderPopup")[0];
+					if(!createFolderPopup.checkValidity())
+					{
+						return;
+					}
+					path = current_folder;
+					if ("/" != path.charAt(path.length - 1)){
+						path = path + "/";
+					}
+					sendCommand(
+						{
+							data: {
+								name: "browser.create_folder",
+								browser:{
+									create_folder:{
+										"path": path + $("#createFolderNameInput")[0].value
+									}
+								}
+							},
+							onSuccess: function(result){
+								browse(current_folder);
+								self.close();
+							}
+						}
+					);
+				},
+				cssClass: 'btn-primary'
 			}
-		);
-	}
-	goButton.className = "button small";
-	buttonDiv.appendChild(goButton);
-	createFolderPopup.appendChild(buttonDiv);
-	setPopup(createFolderPopup);
-	folderNameInput.focus();
+		]
+	});
 }
 
 function downloadPopup(path, download_link){
-	var window_div = document.createElement("div");
-	window_div.className = "window shadow";
-	window_div.id = "download_link_popup";
-	var caption_div = Caption("Download " + path)
-	//End of Caption defintion
-	window_div.appendChild(caption_div);
-	var content_div = document.createElement("div");
-	content_div.className = "content";
-	content_div.id = "download_link_content";
-	var display_content_div = document.createElement("div");
-	var url_div = document.createElement("div");
-	url_div.className = "input-control text";
-	var dlink = location.protocol + "//" + location.host + "/downloads/" + download_link;
-
-	if (!hasFlash)
-	{
-		var download_link_input = document.createElement("input");
-		download_link_input.type = "text";
-
-		download_link_input.value = dlink;
-		url_div.appendChild(download_link_input);
-	}else{
-
-		var copyButton = document.createElement("a");
-		copyButton.className = "button w-download";
-		copyButton.id = "moncopybouton";
-		var i = document.createElement("i");
-		i.className = "icon-copy";
-		copyButton.appendChild(i);
-		url_div.appendChild(copyButton);
-		copyButton.onclick = function(){
-			console.log("Button was clicked");
+	PopupClass.show({
+		title: "Download " + path,
+		data: {
+			path: path,
+			download_link: download_link
+		},
+		message: function(self){
+			var dlink = location.protocol + "//" + location.host + "/downloads/" + self.getData('download_link');
+			var content_div = document.createElement("div");
+			var url_div = document.createElement("div");
+			url_div.className = "text-center";
+			if (!hasFlash)
+			{
+				var download_link_input = document.createElement("input");
+				download_link_input.type = "text";
+				download_link_input.value = dlink;
+				url_div.appendChild(download_link_input);
+			}else{
+				var copyButton = document.createElement("a");
+				copyButton.className = "btn btn-default btn-lg";
+				copyButton.id = "moncopybouton";
+				var i = document.createElement("i");
+				i.className = "fa fa-clipboard";
+				copyButton.appendChild(i);
+				url_div.appendChild(copyButton);
+				copyButton.onclick = function(){
+					console.log("Button was clicked");
+				}
+				function listener(e){
+					document.removeEventListener("DOMNodeInserted", listener);
+					var button = e.target.querySelector("#moncopybouton")
+					copyClient.clip(button);
+					copyClient.setText(dlink);
+					copyClient.on("ready", function(){
+						console.log("copyClient ready");
+					});
+					copyClient.on("copy", function(){
+						console.log("Copy");
+					});
+					copyClient.on("after-copy", function(){
+						console.log("copied to clipboard");
+					});
+				}
+				document.addEventListener("DOMNodeInserted", listener);
+			}
+			var downloadButton = document.createElement("a");
+			downloadButton.className = "btn btn-default btn-lg";
+			var span = document.createElement("span");
+			span.className = "glyphicon glyphicon-download";
+			downloadButton.appendChild(span);
+			url_div.appendChild(downloadButton);
+			downloadButton.onclick = function(){
+				window.open(dlink);
+			}
+			content_div.appendChild(url_div);
+			return content_div;
 		}
-		window_div.close = function(){
-			Logger.DEBUG("Deleting copy object");
-		}.bind(this);
-		function listener(e){
-			document.removeEventListener("DOMNodeInserted", listener);
-			var button = e.target.querySelector("#moncopybouton")
-			copyClient.clip(button);
-			copyClient.setText(dlink);
-			copyClient.on("ready", function(){
-				console.log("copyClient ready");
-			});
-			copyClient.on("copy", function(){
+	});
+	
 
-				console.log("Copy");
-			});
-			copyClient.on("after-copy", function(){
-				console.log("copied to clipboard");
-			});
-		}
-		document.addEventListener("DOMNodeInserted", listener);
-	}
 
-	var downloadButton = document.createElement("a");
-	downloadButton.className = "button w-download";
-	var i = document.createElement("i");
-	i.className = "icon-arrow-down";
-	downloadButton.appendChild(i);
-	url_div.appendChild(downloadButton);
-	downloadButton.onclick = function(){
-		window.open(dlink);
-	}
-	display_content_div.appendChild(url_div);
-	content_div.appendChild(display_content_div);
-	window_div.appendChild(content_div);
-	return window_div;
 }
 
 function createShareLinkDisplay(share_link){
@@ -370,7 +377,7 @@ function createShareLinkDisplay(share_link){
 	searchUsersInput.type = "list";
 	searchUsersInput.setAttribute("list", "searchUserResults");
 	var buttonPlus = document.createElement("button");
-	buttonPlus.className = "button small w-expand-info";
+	buttonPlus.className = "btn btn-default w-expand-info";
 	var iButtonPlus = document.createElement("i");
 	iButtonPlus.className = "icon-plus";
 	buttonPlus.appendChild(iButtonPlus);
@@ -542,7 +549,7 @@ function sharePopup(element, result){
 	var cancel_button = document.createElement("input");
 	cancel_button.type = "button";
 	cancel_button.value = "No";
-	cancel_button.className = "button small";
+	cancel_button.className = "btn btn-default";
 	cancel_button.onclick = function(){
 		window_div.parentNode.removeChild(window_div);
 	}
@@ -563,7 +570,7 @@ function Caption(text){
 	caption_title.innerHTML = text;
 	caption_div.appendChild(caption_title);
 	var caption_close_button = document.createElement("a");
-	caption_close_button.className = "button small";
+	caption_close_button.className = "btn btn-default";
 	var i =document.createElement("i");
 	i.className = "icon-remove";
 	caption_close_button.appendChild(i);
@@ -578,60 +585,51 @@ function Caption(text){
 }
 
 function deletePopup(path){
-	var window_div = document.createElement("div");
-	window_div.className = "window shadow";
-	window_div.id = "delete_item_popup";
-	var caption_div = Caption("Delete " + path);
-	//End of Caption defintion
-	window_div.appendChild(caption_div);
-	var content_div = document.createElement("div");
-	content_div.className = "content";
-	content_div.id = "delete_item_content";
-	var h3 = document.createElement("h3");
-	h3.innerHTML = "Do you want to remove " + path;
-
-	content_div.appendChild(h3);
-	var buttonDiv = document.createElement("div");
-	buttonDiv.className = "form-actions"
-
-	var ok_button = document.createElement("input");
-	ok_button.type = "button";
-	ok_button.value = "Yes";
-	ok_button.className = "button primary small";
-	ok_button.onclick = function(){
-		sendCommand(
+	PopupClass.show({
+		title: "Delete " + path,
+		data: {
+			path: path
+		},
+		message: function(){
+			var content_div = document.createElement("div");
+			var h3 = document.createElement("h3");
+			h3.innerHTML = "Do you want to remove " + path;
+			content_div.appendChild(h3);
+			return content_div;
+		},
+		buttons:[
 			{
-				data: {
-					name: "browser.delete_item",
-					browser:{
-						"delete":{
-							"path": path
+				label: "Close",
+				action: function(self){
+					self.close();
+				}
+			},
+			{
+				label: "Delete",
+				action: function(self){
+					var path = self.getData(path);
+					sendCommand(
+						{
+							data: {
+								name: "browser.delete_item",
+								browser:{
+									"delete":{
+										"path": path
+									}
+								}
+							},
+							onSuccess: function(result){
+								self.close();
+								browse(current_folder);
+							}
 						}
-					}
-				},
-				onSuccess: function(result){
-					window_div.parentNode.removeChild(window_div);
-					browse(current_folder);
+					);
 				}
 			}
-		);
-	};
-	buttonDiv.appendChild(ok_button);
-	var spacer = document.createTextNode('\u00A0');
-	spacer.className="spacer";
-	buttonDiv.appendChild(spacer);
-	var cancel_button = document.createElement("input");
-	cancel_button.type = "button";
-	cancel_button.value = "No";
-	cancel_button.className = "button small";
-	cancel_button.onclick = function(){
-		window_div.parentNode.removeChild(window_div);
-	}
-	buttonDiv.appendChild(cancel_button);
-	content_div.appendChild(buttonDiv);
-	window_div.appendChild(content_div);
-	return window_div;
+		]
+	});
 }
+
 function uploadFile(){
 	//Create a popup div to enter the name of the folder to create
 	var uploadFilePopup = document.createElement("form");
@@ -645,18 +643,62 @@ function uploadFile(){
 	fileNameInput.type = "file";
 	fileNameInput.id = "files";
 	fileNameInput.name = "file";
+	fileNameInput.multiple = true;
 	fileNameInput.setAttribute("required", true);
 	var nameDiv = document.createElement("div");
 	nameDiv.appendChild(folderNameLabel);
 	nameDiv.appendChild(fileNameInput);
 	uploadFilePopup.appendChild(nameDiv);
 
+	var dropZone = document.createElement("div");
+	dropZone.id = "drop_zone";
+
+	function handleFileSelect(evt) {
+	    evt.stopPropagation();
+	    evt.preventDefault();
+
+
+	    var files;
+	    if (undefined != evt.dataTransfer){
+	    	files = evt.dataTransfer.files;
+	    }else{
+	    	files = evt.target.files;
+	    }
+	    // files is a FileList of File objects. List some properties.
+	    for (var i = 0, f; f = files[i]; i++) {
+	    	var fileInfo = document.createElement("div");
+	    	fileInfo.file = f;
+	    	var output = [];
+
+	      	output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+	                  f.size, ' bytes, last modified: ',
+	                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+	                  '</li>');
+	      	fileInfo.innerHTML = output.join('');
+	      	fileListDiv.appendChild(fileInfo);
+	    }
+  	}
+
+	function handleDragOver(evt) {
+    	evt.stopPropagation();
+	    evt.preventDefault();
+	    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+	}
+
+	dropZone.addEventListener('dragover', handleDragOver, false);
+  	dropZone.addEventListener('drop', handleFileSelect, false);
+  	fileNameInput.addEventListener('change', handleFileSelect, false);
+
+  	uploadFilePopup.appendChild(dropZone);
+  	var fileListDiv = document.createElement("output");
+  	uploadFilePopup.appendChild(fileListDiv);
+
 	var buttonDiv = document.createElement("div");
 	buttonDiv.className = "footer";
 	var cancelButton = document.createElement("a");
-	cancelButton.type = "button small";
+	cancelButton.type = "btn btn-default";
 	cancelButton.innerHTML = "Cancel";
-	cancelButton.className = "button small";
+	cancelButton.className = "btn btn-default";
 	cancelButton.onclick = function(){
 		uploadFilePopup.parentNode.removeChild(uploadFilePopup);
 	}
@@ -664,7 +706,7 @@ function uploadFile(){
 	var goButton = document.createElement("input");
 	goButton.type = "submit";
 	goButton.value = "Upload";
-	goButton.innerHTML = "Create";
+	goButton.innerHTML = "Upload";
 	goButton.onclick = function(){
 		if(!uploadFilePopup.checkValidity())
 		{
@@ -676,6 +718,7 @@ function uploadFile(){
 		if ("/" != path.charAt(path.length - 1)){
 			path = path + "/";
 		}
+		//for (var i=0; i < )
 		sendCommand(
 			{
 				data: {
@@ -710,7 +753,7 @@ function uploadFile(){
 			}
 		);
 	}
-	goButton.className = "button small";
+	goButton.className = "btn btn-default";
 	buttonDiv.appendChild(goButton);
 	uploadFilePopup.appendChild(buttonDiv);
 	setPopup(uploadFilePopup);
