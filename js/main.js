@@ -578,7 +578,7 @@ function deletePopup(path){
 			{
 				label: "Delete",
 				action: function(self){
-					var path = self.getData(path);
+					var path = self.getData("path");
 					sendCommand(
 						{
 							data: {
@@ -609,7 +609,7 @@ function uploadFile(){
 			files: fileList
 		},
 		message: function(){
-			var div = document.createElement("div");
+			var div = document.createElement("form");
 			//Create a popup div to enter the name of the folder to create
 			var folderNameLabel = document.createElement("label");
 			folderNameLabel.innerHTML = "Folder Name";

@@ -38,206 +38,189 @@ function validatePassword(){
 }
 
 function signup(){
-	var signupWindow = document.createElement("form");
-	signupWindow.id="signupWindow";
-	signupWindow.className = "window shadow";
-	var caption = Caption("Sign up");
-	signupWindow.appendChild(caption);
-	var content_div = document.createElement("div");
-	content_div.className = "content";
-	signupWindow.appendChild(content_div);
-	//Do not send the request the onclick will do it
-	signupWindow.onsubmit = function(){return false;};
-	//Content
-	var loginDiv = document.createElement("div");
-	var loginLabel = document.createElement("label");
-	loginLabel.innerHTML = "Login";
-	loginLabel.htmlFor="loginInput";
-	var loginInput = document.createElement("input");
-	signupWindow.focusElement = loginInput;
-	loginInput.id="loginInput";
-	loginInput.type = "text";
-	loginInput.name="fname";
-	loginInput.placeholder = "Enter your login";
-	loginInput.setAttribute("required", true);
-	loginDiv.appendChild(loginLabel);
-	loginDiv.appendChild(loginInput);
-	content_div.appendChild(loginDiv);
-	var passwordDiv = document.createElement("div");
-	var passwordLabel = document.createElement("label");
-	passwordLabel.innerHTML = "Password";
-	var passwordInput = document.createElement("input");
-	passwordInput.type = "password";
-	passwordInput.id = "signupPassword";
-	passwordInput.placeholder = "Enter your password";
-	passwordInput.setAttribute("required", true);
-	passwordDiv.appendChild(passwordLabel);
-	passwordDiv.appendChild(passwordInput);
-	content_div.appendChild(passwordDiv);
 
-	var passwordcheckDiv = document.createElement("div");
-	var passwordcheckLabel = document.createElement("label");
-	passwordcheckLabel.innerHTML = "Password Verification";
-	var passwordcheckInput = document.createElement("input");
-	passwordcheckInput.type = "password";
-	passwordcheckInput.id = "signupPasswordCheck";
-	passwordcheckInput.placeholder = "Enter same password";
-	passwordcheckInput.setAttribute("required", true);
-	passwordcheckDiv.appendChild(passwordcheckLabel);
-	passwordcheckDiv.appendChild(passwordcheckInput);
-	content_div.appendChild(passwordcheckDiv);
+	PopupClass.show({
+		"title": "Sign up",
+		message: function(self){
+			var content_div = document.createElement("form");
+			content_div.setAttribute("role", "form");
+			//Content
+			var loginDiv = document.createElement("div");
+			var loginLabel = document.createElement("label");
+			loginLabel.innerHTML = "Login";
+			loginLabel.htmlFor="loginInput";
+			var loginInput = document.createElement("input");
+			loginInput.id="loginInput";
+			loginInput.type = "text";
+			loginInput.name="fname";
+			loginInput.placeholder = "Enter your login";
+			loginInput.setAttribute("required", true);
+			loginInput.className = "form-control";
+			self.loginInput = loginInput;
+			loginDiv.appendChild(loginLabel);
+			loginDiv.appendChild(loginInput);
+			content_div.appendChild(loginDiv);
+			var passwordDiv = document.createElement("div");
+			var passwordLabel = document.createElement("label");
+			passwordLabel.innerHTML = "Password";
+			var passwordInput = document.createElement("input");
+			passwordInput.type = "password";
+			passwordInput.id = "signupPassword";
+			passwordInput.placeholder = "Enter your password";
+			passwordInput.setAttribute("required", true);
+			passwordInput.className = "form-control";
+			self.passwordInput = passwordInput;
+			passwordDiv.appendChild(passwordLabel);
+			passwordDiv.appendChild(passwordInput);
+			content_div.appendChild(passwordDiv);
 
-	passwordInput.onchange = validatePassword;
-    passwordcheckInput.onchange = validatePassword;
+			var passwordcheckDiv = document.createElement("div");
+			var passwordcheckLabel = document.createElement("label");
+			passwordcheckLabel.innerHTML = "Password Verification";
+			var passwordcheckInput = document.createElement("input");
+			passwordcheckInput.type = "password";
+			passwordcheckInput.id = "signupPasswordCheck";
+			passwordcheckInput.placeholder = "Enter same password";
+			passwordcheckInput.setAttribute("required", true);
+			passwordcheckInput.className = "form-control";
+			passwordcheckDiv.appendChild(passwordcheckLabel);
+			passwordcheckDiv.appendChild(passwordcheckInput);
+			content_div.appendChild(passwordcheckDiv);
 
-	var emailDiv = document.createElement("div");
-	var emailLabel = document.createElement("label");
-	emailLabel.innerHTML = "Email";
-	emailLabel.htmlFor = "signupEmail"
-	var emailInput = document.createElement("input");
-	emailInput.type = "email";
-	emailInput.name = "email";
-	emailInput.id = "signupEmail";
-	emailInput.placeholder = "Enter your email";
-	emailInput.setAttribute("required", true);
-	emailDiv.appendChild(emailLabel);
-	emailDiv.appendChild(emailInput);
-	content_div.appendChild(emailDiv);
+			passwordInput.onchange = validatePassword;
+		    passwordcheckInput.onchange = validatePassword;
 
-	var buttonDiv = document.createElement("div");
-	buttonDiv.className = "footer";
-	var cancelButton = document.createElement("a");
-	cancelButton.type = "button small";
-	cancelButton.innerHTML = "Cancel";
-	cancelButton.className = "button small";
-	cancelButton.onclick = function(){
-		signupWindow.parentNode.removeChild(signupWindow);
-	}
-	buttonDiv.appendChild(cancelButton);
-	var goButton = document.createElement("input");
-	goButton.type = "submit";
-	goButton.value = "Create";
-	goButton.onclick = function(){
-		if(!signupWindow.checkValidity())
-		{
-			return;
-		}
-		goButton.style.disabled = true;
-		cancelButton.style.disabled = true;
-		sendRequest({
-				url:"auths/DummyAuth/create",
-				method:"POST",
-				data: {
-					"login": loginInput.value,
-					"password": passwordInput.value,
-					"email": emailInput.value
-				},
-				onSuccess: function(result){
-					console.log("Account created");
-					signupWindow.parentNode.removeChild(signupWindow);
-				}
-			}
-		);
-	}
-	goButton.className = "button small";
-	buttonDiv.appendChild(goButton);
-	signupWindow.appendChild(buttonDiv);
-	setPopup(signupWindow);
-}
-
-function login(){
-	var loginWindow = document.createElement("form");
-
-	loginWindow.className = "window shadow";
-	loginWindow.onsubmit = function(){return false;};
-	var caption = Caption("Log in");
-	loginWindow.appendChild(caption);
-	var contentDiv = document.createElement("div");
-	loginWindow.appendChild(contentDiv);
-	var loginDiv = document.createElement("div");
-	var loginLabel = document.createElement("label");
-	loginLabel.htmlFor="loginInput";
-	loginLabel.innerHTML = "Login";
-	var loginInput = document.createElement("input");
-	loginInput.type = "text";
-	loginInput.setAttribute("required", true);
-	loginWindow.focusElement = loginInput;
-	loginInput.placeholder = "Enter your login";
-	loginDiv.appendChild(loginLabel);
-	loginDiv.appendChild(loginInput);
-	contentDiv.appendChild(loginDiv);
-	var passwordDiv = document.createElement("div");
-	var passwordLabel = document.createElement("label");
-	passwordLabel.htmlFor="passwordInput";
-	passwordLabel.innerHTML = "Password";
-	var passwordInput = document.createElement("input");
-	passwordInput.type = "password";
-	passwordInput.setAttribute("required", true);
-	passwordInput.placeholder = "Enter your login";
-	passwordDiv.appendChild(passwordLabel);
-	passwordDiv.appendChild(passwordInput);
-	contentDiv.appendChild(passwordDiv);
-	var buttonDiv = document.createElement("div");
-	buttonDiv.className = "footer";
-	var cancelButton = document.createElement("a");
-	cancelButton.type = "button small";
-	cancelButton.innerHTML = "Cancel";
-	cancelButton.className = "button small";
-	cancelButton.onclick = function(){
-		loginWindow.parentNode.removeChild(loginWindow);
-	}
-	buttonDiv.appendChild(cancelButton);
-	var goButton = document.createElement("input");
-	goButton.type = "submit";
-	goButton.value = "Login";
-	goButton.onclick = function(){
-		if(!loginWindow.checkValidity())
-		{
-			return;
-		}
-		goButton.disabled = true;
-		cancelButton.disabled = true;
-		//Get the challenge
-		sendRequest(
+			var emailDiv = document.createElement("div");
+			var emailLabel = document.createElement("label");
+			emailLabel.innerHTML = "Email";
+			emailLabel.htmlFor = "signupEmail"
+			var emailInput = document.createElement("input");
+			emailInput.type = "email";
+			emailInput.name = "email";
+			emailInput.id = "signupEmail";
+			emailInput.placeholder = "Enter your email";
+			emailInput.setAttribute("required", true);
+			emailInput.className = "form-control";
+			self.emailInput = emailInput;
+			emailDiv.appendChild(emailLabel);
+			emailDiv.appendChild(emailInput);
+			content_div.appendChild(emailDiv);
+			return content_div;
+		},
+		buttons:[
 			{
-				url:"auths/DummyAuth/get_challenge",
-				method:"GET",
-				onSuccess: function(result){
-					//TODO at one point we should hash the challenge but never mind for now :)
-					sendRequest(
-						{
-							url: "auths/DummyAuth/auth",
-							method: "POST",
+				label: "Close",
+				action: function(self){
+					self.close();
+				}
+			},
+			{
+				label:"Signup",
+				cssClass: "btn-primary",
+				action: function(self){
+					sendRequest({
+							url:"auths/DummyAuth/create",
+							method:"POST",
 							data: {
-								"login": loginInput.value,
-								"challenge_hash": result.challenge + ":" + passwordInput.value,
-								"ref": result.ref
+								"login": self.loginInput.value,
+								"password": self.passwordInput.value,
+								"email": self.emailInput.value
 							},
 							onSuccess: function(result){
-								//Hide login button and show logout one
-								document.getElementById("logout").style.display="";
-								document.getElementById("login").style.display="none";
-								//Set the Global Header
-								user = result;
-								sessionStorage.current_user = JSON.stringify(user);
-								loginWindow.parentNode.removeChild(loginWindow);
-								browse(current_folder);
+								console.log("Account created");
+								self.close();
 							}
 						}
 					);
 				}
 			}
-		);
-	}
-	goButton.className = "button small";
-	buttonDiv.appendChild(goButton);
-	loginWindow.appendChild(buttonDiv);
-	return setPopup(loginWindow);
+		]
+	});
+}
+
+function login(){
+	PopupClass.show({
+		title: "Login",
+		message: function(self){
+			var contentDiv = document.createElement("form");
+			contentDiv.setAttribute("role", "form");
+			var loginDiv = document.createElement("div");
+			var loginLabel = document.createElement("label");
+			loginLabel.htmlFor="loginInput";
+			loginLabel.innerHTML = "Login";
+			var loginInput = document.createElement("input");
+			loginInput.type = "text";
+			loginInput.setAttribute("required", true);
+			loginInput.className = "form-control";
+			self.loginInput = loginInput;
+			loginInput.placeholder = "Enter your login";
+			loginDiv.appendChild(loginLabel);
+			loginDiv.appendChild(loginInput);
+			contentDiv.appendChild(loginDiv);
+			var passwordDiv = document.createElement("div");
+			var passwordLabel = document.createElement("label");
+			passwordLabel.htmlFor="passwordInput";
+			passwordLabel.innerHTML = "Password";
+			var passwordInput = document.createElement("input");
+			passwordInput.type = "password";
+			passwordInput.setAttribute("required", true);
+			passwordInput.placeholder = "Enter your login";
+			passwordInput.className = "form-control";
+			self.passwordInput = passwordInput;
+			passwordDiv.appendChild(passwordLabel);
+			passwordDiv.appendChild(passwordInput);
+			contentDiv.appendChild(passwordDiv);
+			return contentDiv;
+		},
+		buttons:[
+			{
+				label: "Cancel",
+				action: function(self){
+					self.close();
+				}
+			},{
+				label: "Login",
+				cssClass:"btn-primary",
+				action: function(self){
+					sendRequest(
+						{
+							url:"auths/DummyAuth/get_challenge",
+							method:"GET",
+							onSuccess: function(result){
+								//TODO at one point we should hash the challenge but never mind for now :)
+								sendRequest(
+									{
+										url: "auths/DummyAuth/auth",
+										method: "POST",
+										data: {
+											"login": self.loginInput.value,
+											"challenge_hash": result.challenge + ":" + self.passwordInput.value,
+											"ref": result.ref
+										},
+										onSuccess: function(result){
+											//Hide login button and show logout one
+											document.getElementById("logout").style.display="";
+											document.getElementById("login").style.display="none";
+											//Set the Global Header
+											user = result;
+											sessionStorage.current_user = JSON.stringify(user);
+											self.close();
+											browse(current_folder);
+										}
+									}
+								);
+							}
+						}
+					);
+				}
+			}
+		]
+	});
 }
 
 function logout(){
-	delete sessionStorage.Authentication;
-	authorizationToken = null;
+	delete sessionStorage.current_user;
+	user = null;
 	//Hide login button and show logout one
 	document.getElementById("logout").style.display="none";
 	document.getElementById("login").style.display="";
