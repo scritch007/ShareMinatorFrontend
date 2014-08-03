@@ -5,7 +5,7 @@ var displayTheme = null;
 var mainWindow = null;
 
 var queryString = {};
-var hasFlash = false;
+var hasFlash = true;
 var copyClient = null;
 
 var PopupClass = null;
@@ -36,12 +36,12 @@ function init(){
 	queryString = getQueryString();
 	displayTheme = new WualaDisplay();
 	mainWindow = document.getElementById("window_popup_id");
-	ZeroClipboard.config( { swfPath: "bower_components/zeroclipboard/dist/ZeroClipboard.swf" } );
+	//ZeroClipboard.config( { swfPath: "bower_components/zeroclipboard/dist/ZeroClipboard.swf", hoverClass: "zeroclipboard-is-hover", activeClass: "zeroclipboard-is-active" } );
 
-	hasFlash = !ZeroClipboard.isFlashUnusable();
-	if (hasFlash){
-		copyClient = new ZeroClipboard();
-	}
+	//hasFlash = !ZeroClipboard.isFlashUnusable();
+	//if (hasFlash){
+	//	copyClient = new ZeroClipboard();
+	//}
 	$.getJSON("auths", function(result){
 		HandleAuthsResult(result);
 		checkAuth(function(loggedUser){
@@ -154,10 +154,10 @@ function display(result, add_share_callback){
 						}
 					},
 					onSuccess: function(result){
-						setPopup(sharePopup(this, result));
+						sharePopup(this, result);
 					}.bind(this),
 					onError: function(result){
-						setPopup(sharePopup(this, null));
+						sharePopup(this, null);
 					}.bind(this)
 				});
 			}.bind(element);
@@ -246,14 +246,16 @@ function createFolder(){
 }
 
 function downloadPopup(path, download_link){
+	var dlink = location.protocol + "//" + location.host + "/downloads/" + download_link;
 	PopupClass.show({
 		title: "Download " + path,
 		data: {
 			path: path,
-			download_link: download_link
+			download_link: download_link,
+			dlink: dlink
 		},
 		message: function(self){
-			var dlink = location.protocol + "//" + location.host + "/downloads/" + self.getData('download_link');
+			
 			var content_div = document.createElement("div");
 			var url_div = document.createElement("div");
 			url_div.className = "text-center";
@@ -274,22 +276,6 @@ function downloadPopup(path, download_link){
 				copyButton.onclick = function(){
 					console.log("Button was clicked");
 				}
-				function listener(e){
-					document.removeEventListener("DOMNodeInserted", listener);
-					var button = e.target.querySelector("#moncopybouton")
-					copyClient.clip(button);
-					copyClient.setText(dlink);
-					copyClient.on("ready", function(){
-						console.log("copyClient ready");
-					});
-					copyClient.on("copy", function(){
-						console.log("Copy");
-					});
-					copyClient.on("after-copy", function(){
-						console.log("copied to clipboard");
-					});
-				}
-				document.addEventListener("DOMNodeInserted", listener);
 			}
 			var downloadButton = document.createElement("a");
 			downloadButton.className = "btn btn-default btn-lg";
@@ -302,9 +288,22 @@ function downloadPopup(path, download_link){
 			}
 			content_div.appendChild(url_div);
 			return content_div;
+		},
+		onshown: function(self){
+			var temp = $("#moncopybouton").zclip(
+				{
+					path: "bower_components/jquery-zclip/ZeroClipboard.swf",
+					copy: self.getData('dlink'),
+					afterCopy: function(){
+						Notification({name: "Copy Done"});
+					}
+
+				}
+			);
+			console.log(temp);
 		}
 	});
-	
+
 
 
 }
@@ -417,6 +416,7 @@ function createShareLinkDisplay(share_link){
 
 	current_link.appendChild(shareLinkSpecificDiv);
 	current_link.update = function(share_link){
+		current_link.share_link = share_link;
 		if (share_link){
 			keyInput.value = share_link.key;
 		}else{
@@ -442,146 +442,117 @@ function sharePopup(element, result){
 	if (null != result){
 		share_links = result.share_link.list.results;
 	}
-	var window_div = document.createElement("div");
-	window_div.className = "window shadow";
-	window_div.id = "share_link_popup";
-	var caption_div = Caption("Share " + element.name);
-	//End of Caption defintion
-	window_div.appendChild(caption_div);
-	var content_div = document.createElement("div");
-	content_div.className = "content";
-	content_div.id = "share_link_content";
-	var current_link = null;
 	var current_share_link = null;
-	//if (0 != share_links.length){
+	var current_link = null;
+	PopupClass.show({
+		title: "Share " + element.name,
+		data: share_links,
+		message: function(self){
+			var content_div = document.createElement("div");
+			content_div.className = "content";
+			content_div.id = "share_link_content";
 
-		var selectShareLinks = document.createElement("select");
-		content_div.appendChild(selectShareLinks);
+			//if (0 != share_links.length){
 
-		if (0 != share_links.length){
-			current_link = share_links[0];
-		}
-		function refresh(){
-			selectShareLinks.innerHTML = "";
-			var option;
-			for(var i=0; i < share_links.length; i++){
+				var selectShareLinks = document.createElement("select");
+				content_div.appendChild(selectShareLinks);
 
-				option = document.createElement("option");
-				option.value = share_links[i].name?share_links[i].name:share_links[i].key;
-
-				option.share_link = share_links[i];
-				if (null != current_link && current_link.key == option.share_link.key){
-					option.setAttribute("selected", true);
+				if (0 != share_links.length){
+					current_link = share_links[0];
 				}
-				option.innerHTML = option.value;
-				selectShareLinks.appendChild(option);
-			}
-			option = document.createElement("option");
-			option.value = option.innerHTML = "New Share Link";
-			if (null == current_link){
-				option.setAttribute("selected", true);
-			}
-			selectShareLinks.appendChild(option);
+				self.refresh = function(){
+					selectShareLinks.innerHTML = "";
+					var option;
+					for(var i=0; i < share_links.length; i++){
 
-			selectShareLinks.onchange = function(event){
-				for (var i=0; i < selectShareLinks.options.length; i++){
-					var option = selectShareLinks.options[i];
-					if (option.selected){
-						current_link = option.share_link;
-						refresh();
-						break;
-					}
-				}
-			}
-			current_share_link.update(current_link);
-		}
-	//}
-	current_share_link = createShareLinkDisplay(current_link);
-	refresh();
+						option = document.createElement("option");
+						option.value = share_links[i].name?share_links[i].name:share_links[i].key;
 
-	content_div.appendChild(current_share_link);
-	window_div.appendChild(content_div);
-	var buttonDiv = document.createElement("div");
-	buttonDiv.className = "footer";
-
-	var ok_button = document.createElement("input");
-	ok_button.type = "button";
-	ok_button.value = "Yes";
-	ok_button.className = "button primary small";
-	ok_button.onclick = function(){
-		var cmd_name = null == current_share_link.share_link ? "create":"update";
-		command = {
-			name: "share_link." + cmd_name,
-			share_link: {}
-		};
-		command.share_link[cmd_name] = {
-			share_link: {
-				path: current_folder +"/" + element.name,
-				type: current_share_link.shareLinkTypeSelect.selectedOptions[0].value
-			}
-		};
-		if ("restricted" == current_share_link.shareLinkTypeSelect.selectedOptions[0].value){
-			//Add the users that have access to this share link
-
-		}
-		sendCommand(
-			{
-				data: command,
-				poll: true,
-				onSuccess:function(result){
-					console.log(result);
-					if (0 == result.state.status){
-						if (result.name == "share_link.create"){
-							share_links.push(result.share_link.create.share_link);
-							current_link = result.share_link.create.share_link;
+						option.share_link = share_links[i];
+						if (null != current_link && current_link.key == option.share_link.key){
+							option.setAttribute("selected", true);
 						}
-						refresh();
+						option.innerHTML = option.value;
+						selectShareLinks.appendChild(option);
 					}
-					//Else notify of an error...
+					option = document.createElement("option");
+					option.value = option.innerHTML = "New Share Link";
+					if (null == current_link){
+						option.setAttribute("selected", true);
+					}
+					selectShareLinks.appendChild(option);
+
+					selectShareLinks.onchange = function(event){
+						for (var i=0; i < selectShareLinks.options.length; i++){
+							var option = selectShareLinks.options[i];
+							if (option.selected){
+								current_link = option.share_link;
+								self.refresh();
+								break;
+							}
+						}
+					}
+					current_share_link.update(current_link);
+					var button = self.getButton("updateCreateId")[0];
+					if (current_link){
+						button.innerHTML = "Update";
+					}else{
+						button.innerHTML = "Create";
+					}
+				}
+			//}
+			current_share_link = createShareLinkDisplay(current_link);
+			self.refresh();
+
+			content_div.appendChild(current_share_link);
+			return content_div;
+		},
+		buttons: [
+			{
+				label: "Close",
+				action: function(self){
+					self.close();
+				}
+			},{
+				id: "updateCreateId",
+				label: current_link?"Update":"Create",
+				action: function(self){
+					var cmd_name = null == current_share_link.share_link ? "create":"update";
+					command = {
+						name: "share_link." + cmd_name,
+						share_link: {}
+					};
+					command.share_link[cmd_name] = {
+						share_link: {
+							path: current_folder +"/" + element.name,
+							type: current_share_link.shareLinkTypeSelect.selectedOptions[0].value
+						}
+					};
+					if ("restricted" == current_share_link.shareLinkTypeSelect.selectedOptions[0].value){
+						//Add the users that have access to this share link
+					}
+					sendCommand(
+						{
+							data: command,
+							poll: true,
+							onSuccess:function(result){
+								console.log(result);
+								if (0 == result.state.status){
+									if (result.name == "share_link.create"){
+										share_links.push(result.share_link.create.share_link);
+										current_link = result.share_link.create.share_link;
+									}
+									self.refresh();
+								}
+								//Else notify of an error...
+							}
+						}
+					)
 				}
 			}
-		)
-	};
-	buttonDiv.appendChild(ok_button);
-	var spacer = document.createTextNode('\u00A0');
-	spacer.className="spacer";
-	buttonDiv.appendChild(spacer);
-	var cancel_button = document.createElement("input");
-	cancel_button.type = "button";
-	cancel_button.value = "No";
-	cancel_button.className = "btn btn-default";
-	cancel_button.onclick = function(){
-		window_div.parentNode.removeChild(window_div);
-	}
-	buttonDiv.appendChild(cancel_button);
-	window_div.appendChild(buttonDiv);
-	return window_div;
-}
+		]
+	});
 
-function Caption(text){
-	var caption_div = document.createElement("div");
-	caption_div.className = "caption";
-	//Caption definition
-	var caption_span = document.createElement("span");
-	caption_span.className = "icon icon-windows";
-	caption_div.appendChild(caption_span);
-	var caption_title = document.createElement("div");
-	caption_title.className = "title";
-	caption_title.innerHTML = text;
-	caption_div.appendChild(caption_title);
-	var caption_close_button = document.createElement("a");
-	caption_close_button.className = "btn btn-default";
-	var i =document.createElement("i");
-	i.className = "icon-remove";
-	caption_close_button.appendChild(i);
-	caption_div.appendChild(caption_close_button);
-	caption_close_button.onclick = function(){
-		if (caption_div.parentNode.close){
-			caption_div.parentNode.close();
-		}
-		caption_div.parentNode.parentNode.removeChild(caption_div.parentNode);
-	}
-	return caption_div;
 }
 
 function deletePopup(path){
@@ -631,131 +602,125 @@ function deletePopup(path){
 }
 
 function uploadFile(){
-	//Create a popup div to enter the name of the folder to create
-	var uploadFilePopup = document.createElement("form");
-	uploadFilePopup.className = "window shadow";
-	uploadFilePopup.onsubmit = function(){return false;};
-	var caption_div = Caption("uploadFile");
-	uploadFilePopup.appendChild(caption_div);
-	var folderNameLabel = document.createElement("label");
-	folderNameLabel.innerHTML = "Folder Name";
-	var fileNameInput = document.createElement("input");
-	fileNameInput.type = "file";
-	fileNameInput.id = "files";
-	fileNameInput.name = "file";
-	fileNameInput.multiple = true;
-	fileNameInput.setAttribute("required", true);
-	var nameDiv = document.createElement("div");
-	nameDiv.appendChild(folderNameLabel);
-	nameDiv.appendChild(fileNameInput);
-	uploadFilePopup.appendChild(nameDiv);
+	var fileList = [];
+	PopupClass.show({
+		title: "Upload file",
+		data:{
+			files: fileList
+		},
+		message: function(){
+			var div = document.createElement("div");
+			//Create a popup div to enter the name of the folder to create
+			var folderNameLabel = document.createElement("label");
+			folderNameLabel.innerHTML = "Folder Name";
+			folderNameLabel.setAttribute("for", "files");
+			var fileNameInput = document.createElement("input");
+			fileNameInput.type = "file";
+			fileNameInput.id = "files";
+			fileNameInput.name = "file";
+			fileNameInput.multiple = true;
+			fileNameInput.className = "form-control";
+			var nameDiv = document.createElement("div");
+			nameDiv.appendChild(folderNameLabel);
+			nameDiv.appendChild(fileNameInput);
+			div.appendChild(nameDiv);
 
-	var dropZone = document.createElement("div");
-	dropZone.id = "drop_zone";
+			var dropZone = document.createElement("div");
+			dropZone.id = "drop_zone";
 
-	function handleFileSelect(evt) {
-	    evt.stopPropagation();
-	    evt.preventDefault();
+			function handleFileSelect(evt) {
+			    evt.stopPropagation();
+			    evt.preventDefault();
 
 
-	    var files;
-	    if (undefined != evt.dataTransfer){
-	    	files = evt.dataTransfer.files;
-	    }else{
-	    	files = evt.target.files;
-	    }
-	    // files is a FileList of File objects. List some properties.
-	    for (var i = 0, f; f = files[i]; i++) {
-	    	var fileInfo = document.createElement("div");
-	    	fileInfo.file = f;
-	    	var output = [];
+			    var files;
+			    if (undefined != evt.dataTransfer){
+			    	files = evt.dataTransfer.files;
+			    }else{
+			    	files = evt.target.files;
+			    }
+			    // files is a FileList of File objects. List some properties.
+			    for (var i = 0, f; f = files[i]; i++) {
+			    	var fileInfo = document.createElement("div");
+			    	fileInfo.file = f;
+			    	fileList.push(f);
+			    	var output = [];
 
-	      	output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-	                  f.size, ' bytes, last modified: ',
-	                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-	                  '</li>');
-	      	fileInfo.innerHTML = output.join('');
-	      	fileListDiv.appendChild(fileInfo);
-	    }
-  	}
+			      	output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+			                  f.size, ' bytes, last modified: ',
+			                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+			                  '</li>');
+			      	fileInfo.innerHTML = output.join('');
+			      	fileListDiv.appendChild(fileInfo);
+			    }
+		  	}
 
-	function handleDragOver(evt) {
-    	evt.stopPropagation();
-	    evt.preventDefault();
-	    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-	}
+			function handleDragOver(evt) {
+		    	evt.stopPropagation();
+			    evt.preventDefault();
+			    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+			}
 
-	dropZone.addEventListener('dragover', handleDragOver, false);
-  	dropZone.addEventListener('drop', handleFileSelect, false);
-  	fileNameInput.addEventListener('change', handleFileSelect, false);
+			dropZone.addEventListener('dragover', handleDragOver.bind(self), false);
+		  	dropZone.addEventListener('drop', handleFileSelect.bind(self), false);
+		  	fileNameInput.addEventListener('change', handleFileSelect.bind(self), false);
 
-  	uploadFilePopup.appendChild(dropZone);
-  	var fileListDiv = document.createElement("output");
-  	uploadFilePopup.appendChild(fileListDiv);
+		  	div.appendChild(dropZone);
+		  	var fileListDiv = document.createElement("output");
+		  	div.appendChild(fileListDiv);
 
-	var buttonDiv = document.createElement("div");
-	buttonDiv.className = "footer";
-	var cancelButton = document.createElement("a");
-	cancelButton.type = "btn btn-default";
-	cancelButton.innerHTML = "Cancel";
-	cancelButton.className = "btn btn-default";
-	cancelButton.onclick = function(){
-		uploadFilePopup.parentNode.removeChild(uploadFilePopup);
-	}
-	buttonDiv.appendChild(cancelButton);
-	var goButton = document.createElement("input");
-	goButton.type = "submit";
-	goButton.value = "Upload";
-	goButton.innerHTML = "Upload";
-	goButton.onclick = function(){
-		if(!uploadFilePopup.checkValidity())
-		{
-			return;
-		}
-		goButton.disabled = true;
-		cancelButton.disabled = true;
-		path = current_folder;
-		if ("/" != path.charAt(path.length - 1)){
-			path = path + "/";
-		}
-		//for (var i=0; i < )
-		sendCommand(
+		  	return div;
+		},
+		buttons: [
 			{
-				data: {
-					name: "browser.upload_file",
-					browser:{
-						upload_file:{
-							"path": path + fileNameInput.files[0].name,
-							"size": fileNameInput.files[0].size
-						}
+				label: "Cancel",
+				action: function(self){
+					self.close();
+				}
+			},
+			{
+				label: "Upload",
+				action: function(self){
+					path = current_folder;
+					if ("/" != path.charAt(path.length - 1)){
+						path = path + "/";
 					}
-				},
-				onSuccess: function(result){
-					//Check if inprogress is the status
-					if (2 != result.state.status){
-						var notification = new Notification({name:fileNameInput.files[0].name, status:"Upload Failed"});
-					}else{
-
-						var notification = new Notification({progressBar:true, name:fileNameInput.files[0].name, status:"Uploading"});
-						function notificationUpdate(file, uploadedSize){
-							notification.progressBar.value = uploadedSize/this.size * 100;
-							if (100 == notification.progressBar.value){
-								notification.setStatus("Upload Complete");
+					for (var i=0; i < fileList.length; i++){
+						sendCommand(
+							{
+								data: {
+									name: "browser.upload_file",
+									browser:{
+										upload_file:{
+											"path": path + fileList[i].name,
+											"size": fileList[i].size
+										}
+									}
+								},
+								onSuccess: function(result){
+									//Check if inprogress is the status
+									if (2 != result.state.status){
+										var notification = new Notification({name:this.name, status:"Upload Failed"});
+									}else{
+										var notification = new Notification({progressBar:true, name:this.name, status:"Uploading", forever:true});
+										function notificationUpdate(file, uploadedSize){
+											notification.progressBar.value = uploadedSize/this.size * 100;
+											if (100 == notification.progressBar.value){
+												notification.setStatus("Upload Complete");
+											}
+										}
+										//Now start the real work
+										uploader = new ChunkedUploader(this, {url: "/commands/" + result.command_id, progressCB:notificationUpdate.bind(this, notification)});
+										uploader.start();
+									}
+									self.close();
+								}.bind(fileList[i])
 							}
-						}
-						//Now start the real work
-						uploader = new ChunkedUploader(fileNameInput.files[0], {url: "/commands/" + result.command_id, progressCB:notificationUpdate.bind(fileNameInput.files[0], notification)});
-						uploader.start();
+						);
 					}
-					document.getElementById("notifications").appendChild(notification);
-					uploadFilePopup.parentNode.removeChild(uploadFilePopup);
 				}
 			}
-		);
-	}
-	goButton.className = "btn btn-default";
-	buttonDiv.appendChild(goButton);
-	uploadFilePopup.appendChild(buttonDiv);
-	setPopup(uploadFilePopup);
-	fileNameInput.focus();
+		]
+	});
+
 }

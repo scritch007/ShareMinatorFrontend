@@ -75,11 +75,6 @@ WualaDisplay.prototype.GetFilesListElement = function(path){
 	th.className = "browse-name";
 	tr.appendChild(th);
 
-	//mob
-	th = document.createElement("th");
-	th.className = "visible-xs visible-sm browse-unknown";
-	tr.appendChild(th);
-
 	//Size
 	th = document.createElement("th");
 	th.innerHTML = "Size";
@@ -209,10 +204,6 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 
 	td = document.createElement("td");
 	td.innerHTML = name;
-	tr.appendChild(td);
-
-	td = document.createElement("td");
-	td.className = "visible-xs visible-sm";
 	tr.appendChild(td);
 
 	//Size

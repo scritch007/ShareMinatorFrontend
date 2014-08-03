@@ -11,20 +11,27 @@ function Notification(options){
 		notification.progressBar = progressBar;
 	}
 	var notificationStatus = document.createElement("label");
+	var status = "";
 	if (options.status){
-		notificationStatus.innerHTML = options.status;
+		status = options.status;
 	}
 	notification.appendChild(notificationStatus);
 	notification.setStatus = function(status){
 		notificationStatus.innerHTML = status;
 	}
+	notifOptions = {
+			timeOut: options.forever?0:2000,
+			extendedTimeOut: 0,
+			iconClass: null
+	}
+	toastr.info(notification, '', notifOptions);
 	return notification;
 }
 
 function notification(){
 	var notification_div = document.getElementById("notifications");
 	var newNotification = new Notification({name:"test"});
-	notification_div.appendChild(newNotification);
+
 	var value = 0;
 	function updateMe(){
 		newNotification2.progressBar.value = value++;
@@ -32,7 +39,6 @@ function notification(){
 			window.clearInterval(intervalVariable);
 		}
 	}
-	var newNotification2 = new Notification({name:"progresbar", progressBar:true});
+	var newNotification2 = new Notification({name:"progress bar", progressBar:true, forever:true});
 	var intervalVariable = setInterval(function(){updateMe();}, 100);
-	notification_div.appendChild(newNotification2);
 }
