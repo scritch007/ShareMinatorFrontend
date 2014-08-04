@@ -31,6 +31,10 @@ function setPopup(popup){
 	}
 }
 
+function ToolBoxUpdate(){
+	$("select").selectpicker();
+}
+
 function init(){
 	PopupClass = BootstrapDialog;
 	queryString = getQueryString();
@@ -255,7 +259,6 @@ function downloadPopup(path, download_link){
 			dlink: dlink
 		},
 		message: function(self){
-			
 			var content_div = document.createElement("div");
 			var url_div = document.createElement("div");
 			url_div.className = "text-center";
@@ -345,8 +348,11 @@ function createShareLinkDisplay(share_link){
 				document.getElementById("share_link_" + option.value).style.display="none";
 			}
 		}
+		updateSelect(shareLinkTypeSelect);
 	}
 	shareLinkTypeDiv.appendChild(shareLinkTypeSelect);
+	createSelect(shareLinkTypeSelect);
+
 	current_link.appendChild(shareLinkTypeDiv);
 	var shareLinkSpecificDiv = document.createElement("div");
 	var shareLinkDivKey = document.createElement("div");
@@ -455,7 +461,13 @@ function sharePopup(element, result){
 			//if (0 != share_links.length){
 
 				var selectShareLinks = document.createElement("select");
+				selectShareLinks.className = "selectpicker";
+				selectShareLinks.setAttribute("data-style", "btn-primary");
 				content_div.appendChild(selectShareLinks);
+
+				//Update the select object this will deal with mobile cases to.
+				createSelect(selectShareLinks);
+
 
 				if (0 != share_links.length){
 					current_link = share_links[0];
@@ -499,6 +511,7 @@ function sharePopup(element, result){
 					}else{
 						button.innerHTML = "Create";
 					}
+					updateSelect(selectShareLinks);
 				}
 			//}
 			current_share_link = createShareLinkDisplay(current_link);
@@ -506,6 +519,10 @@ function sharePopup(element, result){
 
 			content_div.appendChild(current_share_link);
 			return content_div;
+		},
+		onshown: function(self){
+			//Call the ToolBoxUpdate method so that all the select elements are displayed correctly
+			ToolBoxUpdate();
 		},
 		buttons: [
 			{
