@@ -10,15 +10,7 @@ var copyClient = null;
 
 var PopupClass = null;
 
-function getQueryString() {
-  var result = {}, queryString = location.search.slice(1),
-      re = /([^&=]+)=([^&]*)/g, m;
 
-  while (m = re.exec(queryString)) {
-    result[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-  }
-  return result;
-}
 
 function setPopup(popup){
 	mainWindow.innerHTML = "";
@@ -36,6 +28,7 @@ function ToolBoxUpdate(){
 }
 
 function init(){
+
 	PopupClass = BootstrapDialog;
 	queryString = getQueryString();
 	displayTheme = new WualaDisplay();
@@ -92,7 +85,7 @@ function display(result, add_share_callback){
 	var elementListObject = displayTheme.GetFilesListElement(path);
 
 	if ("/" != path){
-		displayTheme.AddElement(elementListObject, null, "..",
+		var domElem = displayTheme.AddElement(elementListObject, null, "..",
 			function(event){
 				var path = this;
 				if ("/" == path.charAt(path.length - 1)){
@@ -107,6 +100,7 @@ function display(result, add_share_callback){
 				browse(path);
 			}.bind(path)
 		);
+		domElem.className += " visible-sm visible-xs"
 	}
 	for(var i=0; i<result.browser.list.result.children.length; i++){
 		var element = result.browser.list.result.children[i];

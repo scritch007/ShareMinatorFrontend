@@ -19,6 +19,7 @@ function checkAuth(callback){
 		//Hide login button and show logout one
 		document.getElementById("logout").style.display="";
 		document.getElementById("login").style.display="none";
+		document.getElementById("signup").style.display="none";
 		user = JSON.parse(sessionStorage.current_user)
 		//Todo ask for who you really are
 		callback(sessionStorage.Authentication);
@@ -200,6 +201,7 @@ function login(){
 										onSuccess: function(result){
 											//Hide login button and show logout one
 											document.getElementById("logout").style.display="";
+											document.getElementById("signup").style.display="none";
 											document.getElementById("login").style.display="none";
 											//Set the Global Header
 											user = result;
@@ -224,5 +226,6 @@ function logout(){
 	//Hide login button and show logout one
 	document.getElementById("logout").style.display="none";
 	document.getElementById("login").style.display="";
+	document.getElementById("signup").style.display="";
 	browse(current_folder);
 }

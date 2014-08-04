@@ -24,22 +24,67 @@
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 </head>
 <body onload="init()" class="metro">
-<div id="actions">
-	<input type="button" value="Create Folder" onclick="createFolder()" class="btn btn-default"></input>
-	<input type="button" value="Upload File" onclick="uploadFile()" class="btn btn-default"></input>
-	<input type="button" value="Sign Up" onclick="signup()" class="btn btn-default"></input>
-	<input type="button" value="Log in" onclick="login()" class="btn btn-default" id="login"></input>
-	<input type="button" value="Log out" onclick="logout()" class="btn btn-default" style="display:none" id="logout"></input>
-	<input type="button" value="New Notification" onclick="notification()" class="btn btn-default" id="notification>"></input>
+<nav id="navbarId" class="navbar navbar-default navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<button data-toggle="collapse-side" data-target=".side-collapse" data-target-2=".side-collapse-container" type="button" class="navbar-toggle pull-left"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+    </div>
+    <div class="navbar-inverse side-collapse in">
+    	<nav role="navigation" class="navbar-collapse">
+    		<ul class="nav navbar-nav">
+				<li class="dropdown">
+					<div id="toggleAddMenu" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
+						<span class="fa fa-plus-circle"></span>
+					</div>
+					<ul class="dropdown-menu" role="menu">
+						<li><input type="button" value="Create Folder" onclick="createFolder()" class="btn btn-default navbar-btn"></input></li>
+						<li><input type="button" value="Upload File" onclick="uploadFile()" class="btn btn-default navbar-btn"></input></li>
+					</ul>
+
+				</li>
+				<li class="divider"></li>
+				<li><input type="button" value="Sign Up" onclick="signup()" class="btn btn-default navbar-btn" id="signup"></input></li>
+				<li><input type="button" value="Log in" onclick="login()" class="btn btn-default navbar-btn" id="login"></input></li>
+				<li><input type="button" value="Log out" onclick="logout()" class="btn btn-default navbar-btn" style="display:none" id="logout"></input></li>
+				<li><input type="button" value="New Notification" onclick="notification()" class="btn btn-default navbar-btn" id="notification>"></input></li>
+			</ul>
+		</nav>
+	</div>
 </div>
-<div id="navigation_bar" class="large-11 columns"></div>
-<div id="browsing"></div>
+</nav>
+</header>
+<div class="container side-collapse-container">
+	<div id="navigation_bar" class="large-11 columns"></div>
+	<div id="browsing"></div>
+</div>
 <div id="window_popup_id"></div>
 <div id="notifications"></div>
+
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
 <script src="bower_components/bootstrap3-dialog/dist/js/bootstrap-dialog.js"></script>
 <script src="bower_components/bootstrap-select/bootstrap-select.js"></script
 <script type="text/javascript" src="bower_components/jquery-zclip/jquery.zclip.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var sideslider = $('[data-toggle=collapse-side]');
+		var sel = sideslider.attr('data-target');
+		var sel2 = sideslider.attr('data-target-2');
+		sideslider.click(function(event){
+		    $(sel).toggleClass('in');
+		    $(sel2).toggleClass('out');
+		});
+		var toggleAddMenu = $("#toggleAddMenu");
+		toggleAddMenu.click(function(event){
+			console.log("Toggle Clicked");
+			var span = event.currentTarget.querySelector("span");
+			if ("fa fa-plus-circle" == span.className){
+				span.className = "fa fa-minus-circle";
+			}else{
+				span.className = "fa fa-plus-circle";
+			}
+		});
+	});
+</script>
 </body>
 </html>

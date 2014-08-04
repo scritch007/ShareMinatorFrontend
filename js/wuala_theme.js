@@ -14,14 +14,13 @@ WualaDisplay.prototype.createNavElement = function(name){
 	}else{
 		element.innerHTML = name
 	}
-	
 	return element;
 }
 
 WualaDisplay.prototype.GetBrowsingPathElement = function(path, onBrowseChangeCB){
 	var nav_bar = document.getElementById("navigation_bar");
 	nav_bar.innerHTML = "";
-	nav_bar.className = "row hide-for-medium-down";
+	nav_bar.className = "row hidden-xs hidden-sm";
 	var nav = document.createElement("div");
 	nav_bar.appendChild(nav);
 	nav.className = "large-11 columns";
@@ -52,7 +51,7 @@ WualaDisplay.prototype.GetBrowsingPathElement = function(path, onBrowseChangeCB)
 WualaDisplay.prototype.GetFilesListElement = function(path){
 	var browse_div = document.createElement("table");
 	browse_div.style.tableLayout = "fixed";
-	browse_div.className = "table table-striped";
+	browse_div.className = "table table-striped table-hover";
 	browsing.innerHTML = "";
 	this.thead = document.createElement("thead");
 
@@ -175,12 +174,12 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 	iButtonPlus.className = "glyphicon glyphicon-plus-sign";
 	buttonPlus.appendChild(iButtonPlus);
 	buttonPlus.onclick = function(event){
-		if (mobtr.style.display == "none"){
-			mobtr.style.display = "table-row";
-			iButtonPlus.className = "icon-minus";
+		if (mobtr.className == "hide"){
+			mobtr.className = "";
+			iButtonPlus.className = "glyphicon glyphicon-minus-sign";
 		}else{
-			mobtr.style.display = "none";
-			iButtonPlus.className = "icon-plus";
+			mobtr.className = "hide";
+			iButtonPlus.className = "glyphicon glyphicon-plus-sign";
 		}
 		event.stopPropagation();
 	}
@@ -204,6 +203,7 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 
 	td = document.createElement("td");
 	td.innerHTML = name;
+	td.className = "browse-name";
 	tr.appendChild(td);
 
 	//Size
@@ -242,9 +242,10 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 	//TODO make another one for the phones :)
 	var mobtr = document.createElement("tr");
 	mobtr.className = "hide";
-	mobtr.style.display = "none";
+	mobtr.style.display = "table-row";
 	td = document.createElement("td");
-	td.colSpan = "4";
+	td.colSpan = "3";
+	mobtr.style.textAlign = "center";
 	mobtr.appendChild(td);
 
 	if (null != onDownloadCB && undefined != onDownloadCB){
@@ -282,6 +283,9 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
     // </td>
     //</tr>
     this.tbody.appendChild(mobtr);
+    //Just for the strip display we'll add a new line
+    this.tbody.appendChild(document.createElement("tr"));
+    return tr;
 }
 
 WualaDisplay.prototype.AddEmptyList = function(list){
