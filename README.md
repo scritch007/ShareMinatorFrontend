@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/scritch007/ShareMinatorFrontend.svg)](https://travis-ci.org/scritch007/ShareMinatorFrontend)
+
 ShareMinatorFrontend
 ====================
 
