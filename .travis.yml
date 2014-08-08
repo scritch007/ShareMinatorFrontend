@@ -18,7 +18,7 @@ script:
 - tar czf html.tar.gz *
 - ssh $login@$server "rm /home/$login/html/* -rf"
 - scp html.tar.gz $login@$server:/home/$login/html/
-- ssh $login@$server "tar xzf html.tar.gz"
+- ssh $login@$server "cd /home/$login/html && tar xzf html.tar.gz -C ."
 env:
   global:
   - secure: F1Vs8qlCDtaFAlLS3T9bsRmrQy1lA56hRNGfYpXYREzSIHQ7ORLMdng993fCx7MH4J/rn3TbuZDhuIPAQXIe4jh+ROK1iav1LJKX5kGGjZnUz94DAwziXyrsTVV3VyjWP4Kc+O6WnwEaMQ6lXV6UuEsi5VW+WFZpoaEoJG8+5ng=
