@@ -16,7 +16,7 @@ before_install:
 script:
 - 
 - tar czf html.tar.gz *
-- ssh $login:$server "rm /home/$login/html/* -rf"
+- ssh $login@$server "rm /home/$login/html/* -rf"
 - scp html.tar.gz $login@$server:/home/$login/html/
 - ssh $login@$server "tar xzf html.tar.gz"
 env:
