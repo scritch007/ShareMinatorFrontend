@@ -1,6 +1,9 @@
 language: node_js
 node_js:
 - '0.10'
+branches:
+  only:
+    - master
 before_install:
 - openssl aes-256-cbc -K $encrypted_98d9b3df05fd_key -iv $encrypted_98d9b3df05fd_iv
   -in secretkey.enc -out secretkey -d
@@ -13,7 +16,7 @@ before_install:
 script:
 - 
 - tar czf html.tar.gz *
-after_success:
+- ssh $login:$server "rm /home/$login/html/* -rf"
 - scp html.tar.gz $login@$server:/home/$login/html/
 - ssh $login@$server "tar xzf html.tar.gz"
 env:
