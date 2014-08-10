@@ -34,28 +34,45 @@ function sendRequest(obj){
    	$.ajax(request);
 }
 
-function sendCommand(request){
+function sendCommand(command, input, request, onSuccess, onError, onPending){
 	request.url = "commands";
 	request.method = "POST";
+    request.onSuccess = onSuccess;
+    request.onError = onError;
 	var key = queryString["key"];
+
+    var splitted = command.split(".");
+    var cmd = {name: command};
+    cmd[splitted[0]] = {};
+    cmd[splitted[0]][splitted[1]] = { input: input};
+    request.data = cmd;
 	if (undefined != key){
 		request.data.auth_key = key;
 	}
-	if (undefined != request.poll && request.poll){
 		var tempOnSuccess = request.onSuccess;
 		request.onSuccess = function(result){
-			if (2 == result.state.status){
-				window.setTimeout(function(){
-					sendRequest({
-						url:"commands/" + this.command_id,
-						method:"GET",
-						onSuccess: tempOnSuccess
-					});
-				}.bind(result), 3000);
-				return
+			if ((2 == result.state.status) || (1 == result.state.status)){
+                if (undefined != request.poll && request.poll){
+				    window.setTimeout(function(){
+				    	sendRequest({
+				    		url:"commands/" + this.command_id,
+				    		method:"GET",
+				    		onSuccess: tempOnSuccess
+				    	});
+				    }.bind(result), 3000);
+				    return
+                }else if (onPending){
+                    onPending(result);
+                    return
+                }
 			}
-			tempOnSuccess(result);
-		}
+            if (3 == result.state.status){
+                if ((null != request.onError) || (undefined != request.onError)){
+                    request.onError(request, result.state.error_code, 200);
+                }
+            }else if (0 == result.state.status){
+                tempOnSuccess(result);
+            }
 	}
 	sendRequest(request);
 }

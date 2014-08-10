@@ -76,6 +76,14 @@ function Notification(options){
 			extendedTimeOut: 0,
 			iconClass: null
 	}
-	toastr.info(notification, '', notifOptions);
+	var cmd = toastr.info
+	if (undefined != options.type){
+		if ("error" == options.type){
+			cmd = toastr.error;
+		}else if("success" == options.type){
+			cmd = toastr.success;
+		}
+	}
+	cmd(notification, '', notifOptions);
 	return notification;
 }

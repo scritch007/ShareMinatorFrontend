@@ -50,34 +50,22 @@ function init(){
 	});
 }
 function browse(path){
-	var command = {
-		name: "browser.list",
-		browser:{
-			list:{
-				"path": path
-			}
-		}
-	};
-	request = {
-		data: command,
-		onSuccess: function(result){
-			current_folder = path;
 
-			display(result, undefined==result.auth_key);
-		},
-		onError: function(request, status, error){
-			if (401 == request.status){
-				logout();
-				browse(path);
-			}
-		},
-		poll:true
+	function onSuccess(result){
+		current_folder = path;
+		display(result, undefined==result.auth_key);
 	}
-	sendCommand(request);
+	function onError(request, status, error){
+		if (401 == request.status){
+			logout();
+			browse(path);
+		}
+	}
+	sendCommandBrowserList({path:path}, {poll:true},onSuccess, onError);
 }
 
 function display(result, add_share_callback){
-	var path = result.browser.list.path;
+	var path = result.browser.list.input.path;
 	if ("/" != path.charAt(path.length - 1)){
 		path = path + "/";
 	}
@@ -102,8 +90,8 @@ function display(result, add_share_callback){
 		);
 		domElem.className += " visible-sm visible-xs"
 	}
-	for(var i=0; i<result.browser.list.result.children.length; i++){
-		var element = result.browser.list.result.children[i];
+	for(var i=0; i<result.browser.list.output.children.length; i++){
+		var element = result.browser.list.output.children[i];
 		element_path = path + element.name;
 		element.element_path = element_path;
 		var downloadCB = null;
@@ -120,20 +108,17 @@ function display(result, add_share_callback){
 		}//else{
 			downloadCB = function(path, event){
 				event.stopPropagation()
-				sendCommand(
+				sendCommandBrowserDownloadLink(
 					{
-						data: {
-							name: "browser.download_link",
-							browser:{
-								download_link:{
-									"path": path
-								}
-							}
-						},
-						onSuccess: function(result){
+						path: path
+					},
+					{},
+					function(result){
 							console.log(result.browser.download_link.download_link);
-							downloadPopup(path, result.browser.download_link.download_link.link);
-						}
+							downloadPopup(path, result.browser.download_link.output.download_link);
+					},
+					function(result, status, error){
+						console.log("Couldn't get Download link");
 					}
 				);
 			}.bind(element, element_path);
@@ -142,27 +127,22 @@ function display(result, add_share_callback){
 		if (null != user && add_share_callback){
 			shareCB = function(){
 				//Check if we've got a sharelink save
-				sendCommand({
-					data : {
-						name: "share_link.list",
-						share_link:{
-							list : {
-								path: this.element_path
-							}
-						}
+				sendCommandShareLinkList({
+						path: this.element_path
 					},
-					onSuccess: function(result){
+					{},
+					function(result){
 						sharePopup(this, result);
 					}.bind(this),
-					onError: function(result){
+					function(result){
 						sharePopup(this, null);
 					}.bind(this)
-				});
+				);
 			}.bind(element);
 		}
 		displayTheme.AddElement(elementListObject, element, element.name, browseCB, downloadCB, deleteCB, shareCB);
 	}
-	if (0 == result.browser.list.result.children.length){
+	if (0 == result.browser.list.output.children.length){
 		//Display that this is empty
 		displayTheme.AddEmptyList(elementListObject);
 	}
@@ -220,20 +200,18 @@ function createFolder(){
 					if ("/" != path.charAt(path.length - 1)){
 						path = path + "/";
 					}
-					sendCommand(
+					sendCommandBrowserCreateFolder(
 						{
-							data: {
-								name: "browser.create_folder",
-								browser:{
-									create_folder:{
-										"path": path + $("#createFolderNameInput")[0].value
-									}
-								}
-							},
-							onSuccess: function(result){
-								browse(current_folder);
-								self.close();
-							}
+							"path": path + $("#createFolderNameInput")[0].value
+						},
+						{},
+						function(result){
+							browse(current_folder);
+							self.close();
+							Notification({name: "Folder Created", type:"success"})
+						},
+						function(result, status, error){
+							Notification({name: "Creation Failed", type:"error"})
 						}
 					);
 				},
@@ -277,7 +255,7 @@ function downloadPopup(path, download_link){
 			var downloadButton = document.createElement("a");
 			downloadButton.className = "btn btn-default btn-lg";
 			var span = document.createElement("span");
-			span.className = "glyphicon glyphicon-download";
+			span.className = "fa fa-download";
 			downloadButton.appendChild(span);
 			url_div.appendChild(downloadButton);
 			downloadButton.onclick = function(){
@@ -440,7 +418,7 @@ function createShareLinkDisplay(share_link){
 function sharePopup(element, result){
 	var share_links = [];
 	if (null != result){
-		share_links = result.share_link.list.results;
+		share_links = result.share_link.list.output.share_links;
 	}
 	var current_share_link = null;
 	var current_link = null;
@@ -526,39 +504,34 @@ function sharePopup(element, result){
 				}
 			},{
 				id: "updateCreateId",
+				cssClass:"btn-primary",
 				label: current_link?"Update":"Create",
 				action: function(self){
-					var cmd_name = null == current_share_link.share_link ? "create":"update";
-					command = {
-						name: "share_link." + cmd_name,
-						share_link: {}
-					};
-					command.share_link[cmd_name] = {
-						share_link: {
+					var cmd = null == current_share_link.share_link ? sendCommandShareLinkCreate:sendCommandShareLinkUpdate;
+					var share_link = {
+						share_link:{
 							path: current_folder +"/" + element.name,
 							type: current_share_link.shareLinkTypeSelect.selectedOptions[0].value
 						}
-					};
+					}
 					if ("restricted" == current_share_link.shareLinkTypeSelect.selectedOptions[0].value){
 						//Add the users that have access to this share link
 					}
-					sendCommand(
-						{
-							data: command,
-							poll: true,
-							onSuccess:function(result){
-								console.log(result);
-								if (0 == result.state.status){
-									if (result.name == "share_link.create"){
-										share_links.push(result.share_link.create.share_link);
-										current_link = result.share_link.create.share_link;
-									}
-									self.refresh();
+					cmd(
+						share_link,
+						{poll: true},
+						function(result){
+							console.log(result);
+							if (0 == result.state.status){
+								if (result.name == "share_link.create"){
+									share_links.push(result.share_link.create.output.share_link);
+									current_link = result.share_link.create.output.share_link;
 								}
-								//Else notify of an error...
+								self.refresh();
 							}
+							//Else notify of an error...
 						}
-					)
+					);
 				}
 			}
 		]
@@ -590,20 +563,18 @@ function deletePopup(path){
 				label: "Delete",
 				action: function(self){
 					var path = self.getData("path");
-					sendCommand(
+					sendCommandBrowserDelete(
 						{
-							data: {
-								name: "browser.delete_item",
-								browser:{
-									"delete":{
-										"path": path
-									}
-								}
-							},
-							onSuccess: function(result){
-								self.close();
-								browse(current_folder);
-							}
+							"path": path
+						},
+						{},
+						function(result){
+							self.close();
+							browse(current_folder);
+							Notification({name: "Folder " + path +" Deleted", type:"success"});
+						},
+						function(result, error, status){
+							Notification({name:"Failed to delete item", type:"error"})
 						}
 					);
 				}
@@ -697,36 +668,33 @@ function uploadFile(){
 						path = path + "/";
 					}
 					for (var i=0; i < fileList.length; i++){
-						sendCommand(
+						sendCommandBrowserUploadFile(
 							{
-								data: {
-									name: "browser.upload_file",
-									browser:{
-										upload_file:{
-											"path": path + fileList[i].name,
-											"size": fileList[i].size
-										}
+								"path": path + fileList[i].name,
+								"size": fileList[i].size
+							},
+							{},
+							function(result){
+								var notification = new Notification({name:this.name, status:"Upload Failed"});
+								self.close();
+							},
+							function(result, error, status){
+								Notification({name: "Upload Failed", type:"error"})
+								self.close();
+							},
+							function(result){
+								var notification = new Notification({progressBar:true, name:this.name, status:"Uploading", forever:true});
+								function notificationUpdate(file, uploadedSize){
+									notification.progressBar.value = uploadedSize/this.size * 100;
+									if (100 == notification.progressBar.value){
+										notification.setStatus("Upload Complete");
 									}
-								},
-								onSuccess: function(result){
-									//Check if inprogress is the status
-									if (2 != result.state.status){
-										var notification = new Notification({name:this.name, status:"Upload Failed"});
-									}else{
-										var notification = new Notification({progressBar:true, name:this.name, status:"Uploading", forever:true});
-										function notificationUpdate(file, uploadedSize){
-											notification.progressBar.value = uploadedSize/this.size * 100;
-											if (100 == notification.progressBar.value){
-												notification.setStatus("Upload Complete");
-											}
-										}
-										//Now start the real work
-										uploader = new ChunkedUploader(this, {url: "/commands/" + result.command_id, progressCB:notificationUpdate.bind(this, notification)});
-										uploader.start();
-									}
-									self.close();
-								}.bind(fileList[i])
-							}
+								}
+								//Now start the real work
+								uploader = new ChunkedUploader(this, {url: "/commands/" + result.command_id, progressCB:notificationUpdate.bind(this, notification)});
+								uploader.start();
+								self.close();
+							}.bind(fileList[i])
 						);
 					}
 				}

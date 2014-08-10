@@ -7,7 +7,7 @@ WualaDisplay.prototype.createNavElement = function(name){
 	if (null == name || undefined == name){
 		var a = document.createElement("div")
 		var i = document.createElement("span");
-		i.className = "glyphicon glyphicon-home";
+		i.className = "fa fa-home";
 		//i.style.fontSize = "21px";
 		a.appendChild(i);
 		element.appendChild(a);
@@ -113,7 +113,7 @@ WualaDisplay.prototype.buildButtonDiv = function(element, displayName, 	onBrowse
 		var deleteButton = document.createElement("div");
 		deleteButton.className = "btn btn-default";
 		var i =document.createElement("span");
-		i.className = "glyphicon glyphicon-trash";
+		i.className = "fa fa-trash-o";
 		deleteButton.appendChild(i);
 		deleteButton.onclick = function(path, event){
 			onDeleteCB(event);
@@ -126,7 +126,7 @@ WualaDisplay.prototype.buildButtonDiv = function(element, displayName, 	onBrowse
 		var downloadButton = document.createElement("div");
 		downloadButton.className = "btn btn-default";
 		var i = document.createElement("span");
-		i.className = "glyphicon glyphicon-download";
+		i.className = "fa fa-download";
 		downloadButton.appendChild(i);
 		downloadButton.onclick = function(path, event){
 			onDownloadCB(event);
@@ -139,7 +139,7 @@ WualaDisplay.prototype.buildButtonDiv = function(element, displayName, 	onBrowse
 		var shareButton = document.createElement("span");
 		shareButton.className = "btn btn-default";
 		var i = document.createElement("span");
-		i.className = "glyphicon glyphicon-share-alt";
+		i.className = "fa fa-share";
 		shareButton.appendChild(i);
 		shareButton.onclick = function(path, event){
 			event.stopPropagation();
@@ -171,15 +171,15 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 	var buttonPlus = document.createElement("div");
 	buttonPlus.className = "btn btn-default";
 	var iButtonPlus = document.createElement("span");
-	iButtonPlus.className = "glyphicon glyphicon-plus-sign";
+	iButtonPlus.className = "fa fa-plus-sign";
 	buttonPlus.appendChild(iButtonPlus);
 	buttonPlus.onclick = function(event){
 		if (mobtr.className == "hide"){
 			mobtr.className = "";
-			iButtonPlus.className = "glyphicon glyphicon-minus-sign";
+			iButtonPlus.className = "fa fa-minus-sign";
 		}else{
 			mobtr.className = "hide";
-			iButtonPlus.className = "glyphicon glyphicon-plus-sign";
+			iButtonPlus.className = "fa fa-plus-sign";
 		}
 		event.stopPropagation();
 	}
@@ -188,13 +188,13 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 
 	td=document.createElement("td");
 	var img = document.createElement("span");
-	img.className = "glyphicon glyphicon-file";
+	img.className = "fa fa-file";
 	td.appendChild(img);
 	tr.appendChild(td);
 
 	if (onBrowseCB){
 		tr.className = "browseable";
-		img.className = "glyphicon glyphicon-folder-open";
+		img.className = "fa fa-folder-open";
 		tr.onclick = function(path, event){
 			onBrowseCB(event);
 		}.bind(a, name);
