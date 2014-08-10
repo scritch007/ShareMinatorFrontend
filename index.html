@@ -26,7 +26,7 @@
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 </head>
 <body onload="init()" class="metro">
-<div id="navbarId" class="navbar navbar-default navbar-fixed-top">
+<div id="navbarId" class="navbar navbar-default ">
 <div class="container">
 	<div class="navbar-header">
 		<button data-toggle="collapse-side" data-target=".side-collapse" data-target-2=".side-collapse-container" type="button" class="navbar-toggle pull-left"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
@@ -36,11 +36,12 @@
     		<ul class="nav navbar-nav">
 				<li class="dropdown">
 					<a id="toggleAddMenu" class="navbar-btn dropdown-toggle" data-toggle="dropdown">
-						<i class="fa fa-plus-circle"></i>
+						<!-- <i class="fa fa-plus-circle"></i> -->
+						Add
 					</a>
 					<ul class="dropdown-menu" role="menu">
-						<li><input type="button" value="Create Folder" onclick="createFolder()" class="btn btn-default navbar-btn"></input></li>
-						<li><input type="button" value="Upload File" onclick="uploadFile()" class="btn btn-default navbar-btn"></input></li>
+						<li><a onclick="createFolder()" class="navbar-btn">Create Folder</a></li>
+						<li><a onclick="uploadFile()" class="navbar-btn">Upload File</a></li>
 					</ul>
 
 				</li>
@@ -49,6 +50,16 @@
 				<li><a onclick="login()" class="navbar-btn" id="login">Log in</a></li>
 				<li><a onclick="logout()" class="navbar-btn" style="display:none" id="logout">Log out</a></li>
 				<li><a onclick="notification()" class="navbar-btn" id="notification>">New Notification</a></li>
+				<li class="dropdown">
+					<a class="navbar-btn dropdown-toggle" data-toggle="dropdown">
+						Themes
+					</a>
+					<ul class="dropdown-menu" role="menu">
+						<li> <a onclick="setTheme('main')">Default</a></li>
+						<li> <a onclick="setTheme('amelia')">Amelia</a></li>
+						<li> <a onclick="setTheme('cosmo')">Cosmo</a></li>
+					</ul>
+				</ul>
 			</ul>
 		</nav>
 	</div>
@@ -67,6 +78,10 @@
 <script src="bower_components/bootstrap-select/bootstrap-select.js"></script>
 <script type="text/javascript" src="bower_components/jquery-zclip/jquery.zclip.js"></script>
 <script type="text/javascript">
+	function setTheme(theme){
+		document.cookie = "theme=" + theme;
+		location.reload();
+	}
 	$(document).ready(function() {
 		var sideslider = $('[data-toggle=collapse-side]');
 		var sel = sideslider.attr('data-target');
