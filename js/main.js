@@ -28,7 +28,7 @@ function ToolBoxUpdate(){
 }
 
 function init(){
-
+	var current_folder = sessionStorage.current_folder?sessionStorage.current_folder:"/";
 	PopupClass = BootstrapDialog;
 	queryString = getQueryString();
 	displayTheme = new WualaDisplay();
@@ -45,15 +45,17 @@ function init(){
 			if (null != loggedUser){
 				//Display the current user name somewhere
 			}
-			browse("/");
+			browse(current_folder);
 		});
 	});
 }
 function browse(path){
 
 	function onSuccess(result){
-		current_folder = path;
-		display(result, undefined==result.auth_key);
+		current_folder = result.browser.list.output.current_item;
+		current_folder.path = path;
+		sessionStorage.current_folder = path;
+		display(result);
 	}
 	function onError(request, status, error){
 		if (401 == request.status){
@@ -64,7 +66,7 @@ function browse(path){
 	sendCommandBrowserList({path:path}, {poll:true},onSuccess, onError);
 }
 
-function display(result, add_share_callback){
+function display(result){
 	var path = result.browser.list.input.path;
 	if ("/" != path.charAt(path.length - 1)){
 		path = path + "/";
@@ -96,10 +98,12 @@ function display(result, add_share_callback){
 		element.element_path = element_path;
 		var downloadCB = null;
 		var browseCB = null;
-		var deleteCB = function(path, event){
-			event.stopPropagation();
-			deletePopup(path);
-		}.bind(element, element_path);
+		if (2 == current_folder.access){
+			var deleteCB = function(path, event){
+				event.stopPropagation();
+				deletePopup(path);
+			}.bind(element, element_path);
+		}
 
 		if (element.isDir){
 			browseCB = function(path, event){
@@ -124,7 +128,7 @@ function display(result, add_share_callback){
 			}.bind(element, element_path);
 		//}
 		var shareCB = null;
-		if (null != user && add_share_callback){
+		if (null != user && 0 != current_folder.share_access ){
 			shareCB = function(){
 				//Check if we've got a sharelink save
 				sendCommandShareLinkList({
@@ -196,7 +200,7 @@ function createFolder(){
 					{
 						return;
 					}
-					path = current_folder;
+					path = current_folder.path;
 					if ("/" != path.charAt(path.length - 1)){
 						path = path + "/";
 					}
@@ -206,7 +210,7 @@ function createFolder(){
 						},
 						{},
 						function(result){
-							browse(current_folder);
+							browse(current_folder.path);
 							self.close();
 							Notification({name: "Folder Created", type:"success"})
 						},
@@ -510,7 +514,7 @@ function sharePopup(element, result){
 					var cmd = null == current_share_link.share_link ? sendCommandShareLinkCreate:sendCommandShareLinkUpdate;
 					var share_link = {
 						share_link:{
-							path: current_folder +"/" + element.name,
+							path: current_folder.path +"/" + element.name,
 							type: current_share_link.shareLinkTypeSelect.selectedOptions[0].value
 						}
 					}
@@ -570,7 +574,7 @@ function deletePopup(path){
 						{},
 						function(result){
 							self.close();
-							browse(current_folder);
+							browse(current_folder.path);
 							Notification({name: "Folder " + path +" Deleted", type:"success"});
 						},
 						function(result, error, status){
@@ -663,7 +667,7 @@ function uploadFile(){
 			{
 				label: "Upload",
 				action: function(self){
-					path = current_folder;
+					path = current_folder.path;
 					if ("/" != path.charAt(path.length - 1)){
 						path = path + "/";
 					}

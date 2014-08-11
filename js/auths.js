@@ -207,7 +207,7 @@ function login(){
 											user = result;
 											sessionStorage.current_user = JSON.stringify(user);
 											self.close();
-											browse(current_folder);
+											browse(current_folder.path);
 										}
 									}
 								);
@@ -227,5 +227,5 @@ function logout(){
 	document.getElementById("logout").style.display="none";
 	document.getElementById("login").style.display="";
 	document.getElementById("signup").style.display="";
-	browse(current_folder);
+	browse(current_folder.path);
 }
