@@ -3,23 +3,30 @@ function createShareLinkDisplay(share_link){
 	var current_link = document.createElement("div");
 	current_link.share_link = share_link;
 	var keyDiv = document.createElement("div");
-	var keyLabel = document.createElement("div");
+	//keyDiv.className = "input-group";
+	var keyLabel = document.createElement("label");
 	keyLabel.innerHTML = "ShareLinkKey";
 	keyDiv.appendChild(keyLabel);
 	var keyInput = document.createElement("input");
 	current_link.keyInput = keyInput;
+	keyInput.className = "form-control";
 	keyInput.id = "sharelinkkey";
 	keyInput.type = "text";
 	keyDiv.appendChild(keyInput);
+	keyLabel.setAttribute("for", "sharelinkkey");
 
 	current_link.appendChild(keyDiv);
 
 	var shareLinkTypeDiv = document.createElement("div");
+	//shareLinkTypeDiv.className = "input-group";
 	var shareLinkTypeLabel = document.createElement("label");
 	shareLinkTypeLabel.innerHTML = "Share Link Type";
 	shareLinkTypeDiv.appendChild(shareLinkTypeLabel);
 	var shareLinkTypeSelect = document.createElement("select");
+	shareLinkTypeSelect.id = "sharelinktypeselect";
+	shareLinkTypeSelect.className = "form-control";
 	current_link.shareLinkTypeSelect = shareLinkTypeSelect;
+	shareLinkTypeLabel.setAttribute("for", "sharelinktypeselect");
 	var shareLinkType = [ "key", "authenticated", "restricted"];
 	for (var i=0; i<shareLinkType.length; i++){
 		var option = document.createElement("option");
@@ -142,14 +149,14 @@ function sharePopup(element, result){
 		title: "Share " + element.name,
 		data: share_links,
 		message: function(self){
-			var content_div = document.createElement("div");
+			var content_div = document.createElement("form");
 			content_div.className = "content";
 			content_div.id = "share_link_content";
 
 			//if (0 != share_links.length){
 
 				var selectShareLinks = document.createElement("select");
-				selectShareLinks.className = "selectpicker";
+				selectShareLinks.className = "selectpicker form-control";
 				selectShareLinks.setAttribute("data-style", "btn-primary");
 				content_div.appendChild(selectShareLinks);
 
