@@ -166,7 +166,7 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 
 	//Mobile
 	var td = document.createElement("td");
-	td.className = "	visible-xs";
+	td.className = "visible-xs visible-sm";
 
 	var buttonPlus = document.createElement("div");
 	buttonPlus.className = "btn btn-default";
@@ -176,10 +176,10 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 	buttonPlus.onclick = function(event){
 		if (mobtr.className == "hide"){
 			mobtr.className = "visible-xs visible-sm";
-			iButtonPlus.className = "fa fa-minus-sign";
+			iButtonPlus.className = "fa fa-minus-square";
 		}else{
 			mobtr.className = "hide";
-			iButtonPlus.className = "fa fa-plus-sign";
+			iButtonPlus.className = "fa fa-plus-square";
 		}
 		event.stopPropagation();
 	}
@@ -268,7 +268,7 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 		div.innerHTML += ": -";
 		td.appendChild(div);
 	}
-	var actiondiv = this.buildButtonDiv(element, displayName, onBrowseCB, onDownloadCB, onDeleteCB);
+	var actiondiv = this.buildButtonDiv(element, displayName, onBrowseCB, onDownloadCB, onDeleteCB, onShareCB);
 	td.appendChild(actiondiv)
 	mobtr.appendChild(td);
 	//<tr class="hide" data-wuala-path="/CMX10-Android/Android/CM10/Kernel/X10_4.1.X_CMX10_bootmanager_v13.ftf/" style="display: table-row;">
