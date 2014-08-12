@@ -282,9 +282,6 @@ function downloadPopup(path, download_link){
 			console.log(temp);
 		}
 	});
-
-
-
 }
 
 function createShareLinkDisplay(share_link){
