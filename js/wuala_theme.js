@@ -171,11 +171,11 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 	var buttonPlus = document.createElement("div");
 	buttonPlus.className = "btn btn-default";
 	var iButtonPlus = document.createElement("span");
-	iButtonPlus.className = "fa fa-plus-sign";
+	iButtonPlus.className = "fa fa-plus-square";
 	buttonPlus.appendChild(iButtonPlus);
 	buttonPlus.onclick = function(event){
 		if (mobtr.className == "hide"){
-			mobtr.className = "";
+			mobtr.className = "visible-xs visible-sm";
 			iButtonPlus.className = "fa fa-minus-sign";
 		}else{
 			mobtr.className = "hide";
