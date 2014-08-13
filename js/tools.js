@@ -38,6 +38,16 @@ window.isMobile = function() {
   }
 }();
 
+String.prototype.startswith = String.prototype.startsWith?String.prototype.startsWith:function(string, position){
+	if (undefined == position || null == position){
+		position = 0;
+	}
+	var temp = this.slice(position, string.length);
+	return temp == string;
+}
+if (String.prototype.startsWith){
+
+}
 
 function createSelect(select){
 	if (window.isMobile){

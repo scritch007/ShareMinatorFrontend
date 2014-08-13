@@ -156,7 +156,8 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 		element = {
 			size: "-",
 			kind: "-",
-			mDate: "-"
+			mDate: "-",
+			mimetype: ""
 		}
 	}
 	var tr = document.createElement("tr");
@@ -188,7 +189,32 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
 
 	td=document.createElement("td");
 	var img = document.createElement("span");
-	img.className = "fa fa-file";
+	img.className = "fa "
+	if (element.mimetype.startswith("image")){
+		img.className += "fa-file-image-o";
+		//Start the thumbnail request in order to update this icon
+		sendCommandBrowserThumbnail(
+			{path: current_folder.path + "/" + element.name},
+			{poll: true},
+			function(result){
+				Logger.DEBUG("Got the thumbnail");
+				img.className = "";
+				var realimage = document.createElement("img");
+				realimage.className = "browsing-thumbnail";
+				realimage.src = result.browser.thumbnail.output.content;
+				img.appendChild(realimage);
+			},
+			function(result, error, status){
+				Logger.ERROR("Failed to get the thumbnail");
+			}
+		);
+	}else if (element.mimetype.startswith("audio")){
+		img.className += "fa-file-audio-o";
+	}else if (element.mimetype.startswith("video")){
+		img.className += "fa-file-video-o";
+	}else{
+		img.className += "fa-file";
+	}
 	td.appendChild(img);
 	tr.appendChild(td);
 
@@ -284,7 +310,9 @@ WualaDisplay.prototype.AddElement = function(list, element, displayName, onBrows
     //</tr>
     this.tbody.appendChild(mobtr);
     //Just for the strip display we'll add a new line
-    this.tbody.appendChild(document.createElement("tr"));
+    var hidden = document.createElement("tr")
+    hidden.style.display="none";
+    this.tbody.appendChild(hidden);
     return tr;
 }
 

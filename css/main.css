@@ -39,6 +39,12 @@
 #browsing{
 	cursor: pointer;
 }
+#browsing > table > tbody > tr{
+	height: 50px;
+}
+#browsing .browsing-thumbnail{
+	height: 33px;
+}
 @media only screen and (min-width:48em) {
 	#browsing{
 		margin-right:5%;

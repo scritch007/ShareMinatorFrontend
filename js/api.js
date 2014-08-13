@@ -18,6 +18,10 @@ function sendCommandBrowserUploadFile(input, config, onSuccess, onError, onPendi
 	//TODO check that all the mandatory inputs are there
 	sendCommand("browser.upload_file", input, config, onSuccess, onError, onPending);
 }
+function sendCommandBrowserThumbnail(input, config, onSuccess, onError, onPending){
+	//TODO check that all the mandatory inputs are there
+	sendCommand("browser.thumbnail", input, config, onSuccess, onError, onPending);
+}
 function sendCommandShareLinkList(input, config, onSuccess, onError, onPending){
 	//TODO check that all the mandatory inputs are there
 	sendCommand("share_link.list", input, config, onSuccess, onError, onPending);

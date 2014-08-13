@@ -227,5 +227,5 @@ function logout(){
 	document.getElementById("logout").style.display="none";
 	document.getElementById("login").style.display="";
 	document.getElementById("signup").style.display="";
-	browse(current_folder.path);
+	browse("/");
 }
