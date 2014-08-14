@@ -10,6 +10,7 @@ var copyClient = null;
 
 var PopupClass = null;
 
+var show_hidden_files = false;
 
 
 function setPopup(popup){
@@ -29,6 +30,7 @@ function ToolBoxUpdate(){
 
 function init(){
 	var current_folder = sessionStorage.current_folder?sessionStorage.current_folder:"/";
+	var show_hidden_files = localStorage.show_hidden_files?localStorage.show_hidden_files: false;
 	PopupClass = BootstrapDialog;
 	queryString = getQueryString();
 	displayTheme = new WualaDisplay();
@@ -63,7 +65,7 @@ function browse(path){
 			browse(path);
 		}
 	}
-	sendCommandBrowserList({path:path}, {poll:true},onSuccess, onError);
+	sendCommandBrowserList({path:path, show_hidden_files: show_hidden_files}, {poll:true},onSuccess, onError);
 }
 
 function display(result){
@@ -92,8 +94,14 @@ function display(result){
 		);
 		domElem.className += " visible-sm visible-xs"
 	}
-	for(var i=0; i<result.browser.list.output.children.length; i++){
-		var element = result.browser.list.output.children[i];
+	var elements;
+	if(result.browser.list.output.current_item.isDir){
+		elements = result.browser.list.output.children;
+	}else{
+		elements = [result.browser.list.output.current_item];
+	}
+	for(var i=0; i<elements.length; i++){
+		var element = elements[i];
 		element_path = path + element.name;
 		element.element_path = element_path;
 		var downloadCB = null;
@@ -146,7 +154,7 @@ function display(result){
 		}
 		displayTheme.AddElement(elementListObject, element, element.name, browseCB, downloadCB, deleteCB, shareCB);
 	}
-	if (0 == result.browser.list.output.children.length){
+	if (0 == elements.length){
 		//Display that this is empty
 		displayTheme.AddEmptyList(elementListObject);
 	}

@@ -26,7 +26,7 @@
 	<!-- <script type="text/javascript" src="bower_components/zeroclipboard/dist/ZeroClipboard.js"></script> -->
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 </head>
-<body onload="init()" class="metro">
+<body>
 <div id="navbarId" class="navbar navbar-default ">
 <div class="container">
 	<div class="navbar-header">
@@ -52,13 +52,15 @@
 				<li><a onclick="logout()" class="navbar-btn" style="display:none" id="logout">Log out</a></li>
 				<li><a onclick="notification()" class="navbar-btn" id="notification>">New Notification</a></li>
 				<li class="dropdown">
-					<a class="navbar-btn dropdown-toggle" data-toggle="dropdown">
-						Themes
-					</a>
+					<a class="navbar-btn dropdown-toggle fa fa-gear" data-toggle="dropdown"></a>
 					<ul class="dropdown-menu" role="menu">
-						<li> <a onclick="setTheme('main')">Default</a></li>
-						<li> <a onclick="setTheme('amelia')">Amelia</a></li>
-						<li> <a onclick="setTheme('cosmo')">Cosmo</a></li>
+						<li class="dropdown-header">Themes</li>
+						<li> <a class="navbar-btn" onclick="setTheme('main')">Default</a></li>
+						<li> <a class="navbar-btn" onclick="setTheme('amelia')">Amelia</a></li>
+						<li> <a class="navbar-btn" onclick="setTheme('cosmo')">Cosmo</a></li>
+						<li class="divider"></li>
+						<li class="dropdown-header">Configuration</li>
+						<li> <a class="navbar-btn fa fa-square-o" onclick="thumbnailClicked(event)"> Show Hidden Files</a></li>
 					</ul>
 				</ul>
 			</ul>
@@ -83,6 +85,18 @@
 		document.cookie = "theme=" + theme;
 		location.reload();
 	}
+	function thumbnailClicked(event){
+		event.srcElement.checked = !event.srcElement.checked;
+		localStorage.show_hidden_files = event.srcElement.checked;
+		show_hidden_files = event.srcElement.checked;
+		if (event.srcElement.checked){
+			event.srcElement.className = "navbar-btn fa fa-check-square-o";
+		}else{
+			event.srcElement.className = "navbar-btn fa fa-square-o";
+		}
+		browse(current_folder.path);
+		event.stopPropagation();
+	}
 	$(document).ready(function() {
 		var sideslider = $('[data-toggle=collapse-side]');
 		var sel = sideslider.attr('data-target');
@@ -101,6 +115,11 @@
 				span.className = "fa fa-plus-circle";
 			}
 		});
+		init();
+		$("#showHiddenFiles").checked = show_hidden_files;
+		if (show_hidden_files){
+			$("#showHiddenFiles").className = "navbar-btn fa fa-check-square-o";
+		}
 	});
 </script>
 </body>

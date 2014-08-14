@@ -35,15 +35,12 @@
 	background-color: orange;
 }
 
-
-#browsing{
-	cursor: pointer;
-}
 #browsing > table > tbody > tr{
 	height: 50px;
 }
 #browsing .browsing-thumbnail{
-	height: 33px;
+	max-height: 33px;
+	max-width: 33px;
 }
 @media only screen and (min-width:48em) {
 	#browsing{
@@ -93,6 +90,9 @@
 	width:100px;
 }*/
 
+#browsing{
+	cursor: default;
+}
 
 th.browse-plus{
 	width:50px;
@@ -173,4 +173,16 @@ body {
 }
 #navbarId input[type=button]{
 	width: 100%;
+}
+
+.browseable{
+	cursor: pointer;
+}
+
+.breadcrumb{
+	cursor: pointer;
+}
+
+.navbar-btn{
+	cursor: pointer;
 }

@@ -173,6 +173,9 @@ function login(){
 			contentDiv.appendChild(passwordDiv);
 			return contentDiv;
 		},
+		onshown: function(self){
+			self.loginInput.focus();
+		},
 		buttons:[
 			{
 				label: "Cancel",
