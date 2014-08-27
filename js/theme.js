@@ -127,12 +127,25 @@ WualaDisplay.prototype.buildButtonDiv = function(element, displayName, 	onBrowse
 		downloadButton.className = "btn btn-default";
 		var i = document.createElement("span");
 		i.className = "fa fa-download";
-		downloadButton.appendChild(i);
+
 		downloadButton.onclick = function(path, event){
 			onDownloadCB(event);
 		}.bind(element, displayName);
 		downloadButton.appendChild(i);
 		buttonDiv.appendChild(downloadButton);
+	}
+
+	if (-1 != element.mimetype.indexOf("video")){
+		var playButton = document.createElement("div");
+		playButton.className = "btn btn-default";
+		var i = document.createElement("span");
+		i.className = "fa fa-play-circle";
+
+		playButton.onclick = function(path, event){
+			onDownloadCB(event, true);
+		}.bind(element, displayName);
+		playButton.appendChild(i);
+		buttonDiv.appendChild(playButton);
 	}
 
 	if (null != onShareCB && undefined != onShareCB){

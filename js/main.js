@@ -118,7 +118,7 @@ function display(result){
 				browse(path);
 			}.bind(element, element_path);
 		}//else{
-			downloadCB = function(path, event){
+			downloadCB = function(path, event, play){
 				event.stopPropagation()
 				sendCommandBrowserDownloadLink(
 					{
@@ -127,7 +127,11 @@ function display(result){
 					{},
 					function(result){
 							console.log(result.browser.download_link.download_link);
-							downloadPopup(path, result.browser.download_link.output.download_link);
+							if (play){
+								playPopup(path, element, result.browser.download_link.output.download_link);
+							}else{
+								downloadPopup(path, result.browser.download_link.output.download_link);
+							}
 					},
 					function(result, status, error){
 						console.log("Couldn't get Download link");
@@ -230,6 +234,29 @@ function createFolder(){
 				cssClass: 'btn-primary'
 			}
 		]
+	});
+}
+function playPopup(path, element, download_link){
+	var dlink = location.protocol + "//" + location.host + "/downloads/" + download_link;
+	PopupClass.show({
+		title: "Play",
+		data: {
+			path: path,
+			download_link: download_link,
+			dlink: dlink
+		},
+		message: function(self){
+			var video = document.createElement("video");
+			video.className = "video-js vjs-default-skin";
+			video.setAttribute("controls", true);
+			video.style.width = "100%";
+			video.style.height = "100%";
+			var source = document.createElement("source");
+			source.type = element.mimetype;
+			source.src = self.getData("dlink");
+			video.appendChild(source);
+			return video;
+		}
 	});
 }
 
