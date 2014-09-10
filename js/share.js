@@ -81,7 +81,7 @@ function createShareLinkDisplay(share_link){
 	var buttonPlus = document.createElement("button");
 	buttonPlus.className = "btn btn-default w-expand-info";
 	var iButtonPlus = document.createElement("i");
-	iButtonPlus.className = "icon-plus";
+	iButtonPlus.className = "fa fa-plus-square";
 	buttonPlus.appendChild(iButtonPlus);
 	buttonPlus.onclick = function(event){
 		//TODO add user to user list
