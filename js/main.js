@@ -468,6 +468,7 @@ function uploadFile(){
 									notification.progressBar.value = uploadedSize/this.size * 100;
 									if (100 == notification.progressBar.value){
 										notification.setStatus("Upload Complete");
+										browse(current_folder.path);
 									}
 								}
 								//Now start the real work
