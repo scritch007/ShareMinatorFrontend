@@ -27,11 +27,13 @@ function createShareLinkDisplay(share_link){
 	shareLinkTypeSelect.className = "form-control";
 	current_link.shareLinkTypeSelect = shareLinkTypeSelect;
 	shareLinkTypeLabel.setAttribute("for", "sharelinktypeselect");
-	var shareLinkType = [ "key", "authenticated", "restricted"];
+	var shareLinkType = [{key:"key", value:EnumShareLinkType.EnumShareByKey},
+	{key:"authenticated", value:EnumShareLinkType.EnumAuthenticated},
+	{key:"restricted", value:EnumShareLinkType.EnumRestricted}];
 	for (var i=0; i<shareLinkType.length; i++){
 		var option = document.createElement("option");
-		option.value = shareLinkType[i];
-		option.innerHTML = shareLinkType[i];
+		option.value = shareLinkType[i].value;
+		option.innerHTML = shareLinkType[i].key;
 		shareLinkTypeSelect.appendChild(option);
 	}
 	shareLinkTypeSelect.onchange = function(event){
@@ -234,10 +236,10 @@ function sharePopup(element, result){
 					var share_link = {
 						share_link:{
 							path: current_folder.path +"/" + element.name,
-							type: current_share_link.shareLinkTypeSelect.selectedOptions[0].value
+							type: parseInt(current_share_link.shareLinkTypeSelect.selectedOptions[0].value)
 						}
 					}
-					if ("restricted" == current_share_link.shareLinkTypeSelect.selectedOptions[0].value){
+					if (EnumShareLinkType.EnumRestricted == parseInt(current_share_link.shareLinkTypeSelect.selectedOptions[0].value)){
 						//Add the users that have access to this share link
 					}
 					cmd(
