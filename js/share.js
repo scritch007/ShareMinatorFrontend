@@ -40,9 +40,9 @@ function createShareLinkDisplay(share_link){
 		for (var i=0; i < shareLinkTypeSelect.options.length; i++){
 			var option = shareLinkTypeSelect.options[i];
 			if (option.selected){
-				document.getElementById("share_link_" + option.value).style.display="";
+				document.getElementById("share_link_" + option.innerHTML).style.display="";
 			}else{
-				document.getElementById("share_link_" + option.value).style.display="none";
+				document.getElementById("share_link_" + option.innerHTML).style.display="none";
 			}
 		}
 		updateSelect(shareLinkTypeSelect);
@@ -126,7 +126,7 @@ function createShareLinkDisplay(share_link){
 			keyInput.value = "";
 		}
 		usersUl.innerHTML = "";
-		if (null != share_link && "restricted" == share_link.type){
+		if (null != share_link && EnumShareLinkType.EnumRestricted == parseInt(share_link.type)){
 			for(var i=0; i < share_link.user_list.length; i++){
 				var userLi = document.createElement("li");
 				userLi.innerHTML = share_link.user_list[i];
