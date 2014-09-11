@@ -1,3 +1,4 @@
+var listOfUsers = [];
 
 function createShareLinkDisplay(share_link){
 	var current_link = document.createElement("div");
@@ -86,8 +87,11 @@ function createShareLinkDisplay(share_link){
 	var iButtonPlus = document.createElement("i");
 	iButtonPlus.className = "fa fa-plus-square";
 	buttonPlus.appendChild(iButtonPlus);
+
 	buttonPlus.onclick = function(event){
-		//TODO add user to user list
+		if(listOfUsers.indexOf(search_users[searchUsersInput.value]) == -1) {
+			listOfUsers.push(search_users[searchUsersInput.value]);
+		}
 		event.stopPropagation();
 	}
 	searchUsersSpan.appendChild(buttonPlus);
@@ -95,6 +99,7 @@ function createShareLinkDisplay(share_link){
 	var searchUsersResponse = document.createElement("datalist");
 	searchUsersResponse.id = "searchUserResults";
 	searchUsersSpan.appendChild(searchUsersResponse);
+	var search_users = {};
 	searchUsersInput.onkeyup = function(){
 		clearTimeout(searchTimer);
 		searchTimer = setTimeout(
@@ -105,9 +110,12 @@ function createShareLinkDisplay(share_link){
 						method:"GET",
 						onSuccess: function(result){
 							searchUsersResponse.innerHTML = "";
+							search_users = {};
 							for(var i=0; i < result.length; i++){
 								var label = document.createElement("option");
-								label.value = result[i].name + "(" + result[i].id +")";
+								label.value = result[i].login + "(" + result[i].email +")";
+								label.text = String(result[i].id)
+								search_users[label.value] = label.text
 								searchUsersResponse.appendChild(label);
 							}
 						}
@@ -245,7 +253,9 @@ function sharePopup(element, result){
 					}
 					if (EnumShareLinkType.EnumRestricted == parseInt(current_share_link.shareLinkTypeSelect.selectedOptions[0].value)){
 						//Add the users that have access to this share link
+						share_link['share_link']['user_list'] = listOfUsers;
 					}
+
 					cmd(
 						share_link,
 						{poll: true},
