@@ -187,7 +187,6 @@ function createFolder(){
 			folderNameInput.type = "text";
 			folderNameInput.setAttribute("required", true);
 			folderNameInput.className = "form-control";
-			folderNameInput.id = "createFolderNameInput";
 			folderNameInput.focus();
 
 			var nameDiv = document.createElement("div");

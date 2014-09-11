@@ -3,6 +3,7 @@ function createShareLinkDisplay(share_link){
 	var current_link = document.createElement("div");
 	current_link.share_link = share_link;
 	var keyDiv = document.createElement("div");
+	keyDiv.className = "form-group";
 	//keyDiv.className = "input-group";
 	var keyLabel = document.createElement("label");
 	keyLabel.innerHTML = "ShareLinkKey";
@@ -18,6 +19,7 @@ function createShareLinkDisplay(share_link){
 	current_link.appendChild(keyDiv);
 
 	var shareLinkTypeDiv = document.createElement("div");
+	shareLinkTypeDiv.className = "form-group";
 	//shareLinkTypeDiv.className = "input-group";
 	var shareLinkTypeLabel = document.createElement("label");
 	shareLinkTypeLabel.innerHTML = "Share Link Type";
@@ -50,6 +52,7 @@ function createShareLinkDisplay(share_link){
 
 	current_link.appendChild(shareLinkTypeDiv);
 	var shareLinkSpecificDiv = document.createElement("div");
+	shareLinkSpecificDiv.className = "form-group";
 	var shareLinkDivKey = document.createElement("div");
 	shareLinkDivKey.id = "share_link_key";
 	shareLinkSpecificDiv.appendChild(shareLinkDivKey);
@@ -76,10 +79,10 @@ function createShareLinkDisplay(share_link){
 	searchUsersSpan.appendChild(searchUsersInput);
 	searchUsersInput.type = "list";
 	searchUsersInput.setAttribute("list", "searchUserResults");
-	var buttonPlus = document.createElement("button");
+	var buttonPlus = document.createElement("div");
 	buttonPlus.className = "btn btn-default w-expand-info";
 	var iButtonPlus = document.createElement("i");
-	iButtonPlus.className = "icon-plus";
+	iButtonPlus.className = "fa fa-plus-square";
 	buttonPlus.appendChild(iButtonPlus);
 	buttonPlus.onclick = function(event){
 		//TODO add user to user list
@@ -150,6 +153,7 @@ function sharePopup(element, result){
 		data: share_links,
 		message: function(self){
 			var content_div = document.createElement("form");
+			content_div.setAttribute("role", "form");
 			content_div.className = "content";
 			content_div.id = "share_link_content";
 
