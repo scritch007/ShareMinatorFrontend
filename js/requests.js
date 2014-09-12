@@ -69,7 +69,11 @@ function sendCommand(command, input, request, onSuccess, onError, onPending){
             if (3 == result.state.status){
                 if ((null != request.onError) || (undefined != request.onError)){
                     request.onError(request, result.state.error_code, 200);
+                    if (result.state.error_code === EnumCommandErrorCode.ERROR_NOT_ALLOWED){
+                        window.alert("You are not allowed to access to this path");
+                    }
                 }
+
             }else if (0 == result.state.status){
                 tempOnSuccess(result);
             }
