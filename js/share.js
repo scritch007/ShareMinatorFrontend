@@ -148,6 +148,20 @@ function createShareLinkDisplay(share_link){
 	if (null != share_link){
 		current_link.update(share_link);
 	}
+	if (current_folder.access == AccessType.READ_WRITE){
+		var access = document.createElement('input');
+		access.type = "checkbox";
+		access.name = "access";
+		access.value = "value";
+		access.id = "access";
+
+		var accessLabel = document.createElement("label");
+		accessLabel.innerHTML = "READ/WRITE Access";
+		shareLinkTypeDiv.appendChild(accessLabel);
+		shareLinkTypeDiv.appendChild(access);
+		accessLabel.setAttribute("for", "access");
+		current_link.access = access;
+	}
 	return current_link;
 }
 
@@ -255,7 +269,12 @@ function sharePopup(element, result){
 						//Add the users that have access to this share link
 						share_link['share_link']['user_list'] = listOfUsers;
 					}
+					if (current_share_link.access != null && current_share_link.access !== undefined && current_share_link.access.checked){
+						share_link['share_link']['access'] = AccessType.READ_WRITE;
+					}else{
+						share_link['share_link']['access'] = AccessType.READ;
 
+					}
 					cmd(
 						share_link,
 						{poll: true},
