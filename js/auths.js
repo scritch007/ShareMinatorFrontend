@@ -120,7 +120,7 @@ function signup(){
 				cssClass: "btn-primary",
 				action: function(self){
 					sendRequest({
-							url:"auths/DummyAuth/create",
+							url:RequestsUrl.RequestDummyCreate,
 							method:"POST",
 							data: {
 								"login": self.loginInput.value,
@@ -188,13 +188,13 @@ function login(){
 				action: function(self){
 					sendRequest(
 						{
-							url:"auths/DummyAuth/get_challenge",
+							url:RequestsUrl.RequestDummyGetChallenge,
 							method:"GET",
 							onSuccess: function(result){
 								//TODO at one point we should hash the challenge but never mind for now :)
 								sendRequest(
 									{
-										url: "auths/DummyAuth/auth",
+										url: RequestsUrl.RequestDummyAuth,
 										method: "POST",
 										data: {
 											"login": self.loginInput.value,

@@ -70,3 +70,11 @@ EnumShareLinkType.EnumShareByKey = 0;
 EnumShareLinkType.EnumRestricted = 1;
 EnumShareLinkType.EnumAuthenticated = 2;
 /******************EnumShareLinkType******************/
+var RequestsUrl = function(){};
+RequestsUrl.RequestGetInfo = "auths/get_info";
+RequestsUrl.RequestGetUsers = "auths/get_users";
+RequestsUrl.RequestDummyAuth = "auths/dummy.auth";
+RequestsUrl.RequestDummyGetChallenge = "auths/dummy.get_challenge";
+RequestsUrl.RequestDummyCreate = "auths/dummy.create";
+RequestsUrl.RequestLogout = "auths/logout";
+RequestsUrl.RequestList = "auths/list";
