@@ -1,3 +1,4 @@
+var listOfUsers = [];
 
 function createShareLinkDisplay(share_link){
 	var current_link = document.createElement("div");
@@ -86,8 +87,11 @@ function createShareLinkDisplay(share_link){
 	var iButtonPlus = document.createElement("i");
 	iButtonPlus.className = "fa fa-plus-square";
 	buttonPlus.appendChild(iButtonPlus);
+
 	buttonPlus.onclick = function(event){
-		//TODO add user to user list
+		if(listOfUsers.indexOf(search_users[searchUsersInput.value]) == -1) {
+			listOfUsers.push(search_users[searchUsersInput.value]);
+		}
 		event.stopPropagation();
 	}
 	searchUsersSpan.appendChild(buttonPlus);
@@ -95,6 +99,7 @@ function createShareLinkDisplay(share_link){
 	var searchUsersResponse = document.createElement("datalist");
 	searchUsersResponse.id = "searchUserResults";
 	searchUsersSpan.appendChild(searchUsersResponse);
+	var search_users = {};
 	searchUsersInput.onkeyup = function(){
 		clearTimeout(searchTimer);
 		searchTimer = setTimeout(
@@ -105,9 +110,12 @@ function createShareLinkDisplay(share_link){
 						method:"GET",
 						onSuccess: function(result){
 							searchUsersResponse.innerHTML = "";
+							search_users = {};
 							for(var i=0; i < result.length; i++){
 								var label = document.createElement("option");
-								label.value = result[i].name + "(" + result[i].id +")";
+								label.value = result[i].login + "(" + result[i].email +")";
+								label.text = String(result[i].id)
+								search_users[label.value] = label.text
 								searchUsersResponse.appendChild(label);
 							}
 						}
@@ -139,6 +147,20 @@ function createShareLinkDisplay(share_link){
 	}
 	if (null != share_link){
 		current_link.update(share_link);
+	}
+	if (current_folder.access == AccessType.READ_WRITE){
+		var access = document.createElement('input');
+		access.type = "checkbox";
+		access.name = "access";
+		access.value = "value";
+		access.id = "access";
+
+		var accessLabel = document.createElement("label");
+		accessLabel.innerHTML = "READ/WRITE Access";
+		shareLinkTypeDiv.appendChild(accessLabel);
+		shareLinkTypeDiv.appendChild(access);
+		accessLabel.setAttribute("for", "access");
+		current_link.access = access;
 	}
 	return current_link;
 }
@@ -245,6 +267,13 @@ function sharePopup(element, result){
 					}
 					if (EnumShareLinkType.EnumRestricted == parseInt(current_share_link.shareLinkTypeSelect.selectedOptions[0].value)){
 						//Add the users that have access to this share link
+						share_link['share_link']['user_list'] = listOfUsers;
+					}
+					if (current_share_link.access != null && current_share_link.access !== undefined && current_share_link.access.checked){
+						share_link['share_link']['access'] = AccessType.READ_WRITE;
+					}else{
+						share_link['share_link']['access'] = AccessType.READ;
+
 					}
 					cmd(
 						share_link,
