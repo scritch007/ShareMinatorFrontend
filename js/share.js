@@ -91,6 +91,7 @@ function createShareLinkDisplay(share_link){
 	buttonPlus.onclick = function(event){
 		if(listOfUsers.indexOf(search_users[searchUsersInput.value]) == -1) {
 			listOfUsers.push(search_users[searchUsersInput.value]);
+			adduser(search_users[searchUsersInput.value])
 		}
 		event.stopPropagation();
 	}
@@ -127,6 +128,12 @@ function createShareLinkDisplay(share_link){
 	var selectedUsers = document.createElement("div");
 	shareLinkDivRestricted.appendChild(selectedUsers);
 
+	function adduser(user){
+		var userLi = document.createElement("li");
+		userLi.innerHTML = user;
+		usersUl.appendChild(userLi);
+	}
+
 	current_link.appendChild(shareLinkSpecificDiv);
 	current_link.update = function(share_link){
 		current_link.share_link = share_link;
@@ -138,9 +145,7 @@ function createShareLinkDisplay(share_link){
 		usersUl.innerHTML = "";
 		if (null != share_link && EnumShareLinkType.EnumRestricted == parseInt(share_link.type)){
 			for(var i=0; i < share_link.user_list.length; i++){
-				var userLi = document.createElement("li");
-				userLi.innerHTML = share_link.user_list[i];
-				usersUl.appendChild(userLi);
+				adduser(share_link.user_list[i]);
 			}
 		}
 	}
