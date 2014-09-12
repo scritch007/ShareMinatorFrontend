@@ -63,6 +63,10 @@ function browse(path){
 		display(result);
 	}
 	function onError(request, status, error){
+
+		if (status === EnumCommandErrorCode.ERROR_NOT_ALLOWED){
+            new Notification({name: "You are not allowed to access to this path", type:"error"});
+        }
 		if (401 == request.status){
 			logout();
 			browse(path);
