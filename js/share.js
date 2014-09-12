@@ -114,8 +114,7 @@ function createShareLinkDisplay(share_link){
 							for(var i=0; i < result.length; i++){
 								var label = document.createElement("option");
 								label.value = result[i].login + "(" + result[i].email +")";
-								label.text = String(result[i].id)
-								search_users[label.value] = label.text
+								search_users[label.value] = String(result[i].id)
 								searchUsersResponse.appendChild(label);
 							}
 						}
