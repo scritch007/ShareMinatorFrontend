@@ -32,7 +32,7 @@ function init(){
 	var current_folder = sessionStorage.current_folder?sessionStorage.current_folder:"/";
 	var show_hidden_files = localStorage.show_hidden_files?localStorage.show_hidden_files: false;
 	PopupClass = BootstrapDialog;
-	PopupClass.defaultOptions['closable'] = false;
+	PopupClass.defaultOptions['closable'] = true;
 	PopupClass.defaultOptions['closeByBackdrop'] = false;
 	PopupClass.defaultOptions['closeByKeyboard'] = false;
 	queryString = getQueryString();
