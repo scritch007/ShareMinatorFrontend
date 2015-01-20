@@ -52,6 +52,9 @@ function init(){
 			}
 			browse(current_folder);
 		});
+	},
+	function(error){
+		console.log("Error");
 	});
 }
 function browse(path){
@@ -276,6 +279,7 @@ function downloadPopup(path, download_link){
 			dlink: dlink
 		},
 		message: function(self){
+			var dialog = self;  
 			var content_div = document.createElement("div");
 			var url_div = document.createElement("div");
 			url_div.className = "text-center";
@@ -305,6 +309,7 @@ function downloadPopup(path, download_link){
 			url_div.appendChild(downloadButton);
 			downloadButton.onclick = function(){
 				window.open(dlink);
+				dialog.close();
 			}
 			content_div.appendChild(url_div);
 			return content_div;
