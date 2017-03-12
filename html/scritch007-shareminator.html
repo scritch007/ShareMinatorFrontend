@@ -202,6 +202,14 @@ core-drawer-panel:not([narrow]) #navicon {
       setLoginLogOutCBs: function(login, logout){
         this.$.login_dialog.setLoginCallback(login);
         this._logout = logout;
+
+        var sideslider = $('[data-toggle=collapse-side]');
+        var sel = sideslider.attr('data-target');
+        var sel2 = sideslider.attr('data-target-2');
+        sideslider.click(function(event){
+            $(sel).toggleClass('in');
+            $(sel2).toggleClass('out');
+        });
       },
       _refresh:function(){
         browse(current_folder.path);
